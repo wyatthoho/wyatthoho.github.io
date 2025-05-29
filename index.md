@@ -1,6 +1,6 @@
 ---
+layout: default
+title: Home
 ---
 
-# Hi
-
-I am Wyatt Ho.
+{{ "Hello World!" | downcase }}
