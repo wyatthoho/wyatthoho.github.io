@@ -2,7 +2,8 @@
 
 ## Introduction
 
-This repository hosts my personal website(https://wyatthoho.github.io/).
+This repository hosts my personal website: https://wyatthoho.github.io/.
+
 It is built using [Jekyll](https://jekyllrb.com/),
 following the official [step-by-step tutorial](https://jekyllrb.com/docs/step-by-step/01-setup/).
 
