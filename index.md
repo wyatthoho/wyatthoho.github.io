@@ -7,11 +7,11 @@ title: Home
 
 {{ "Hello World!" | downcase }}
 
-This page includes an example of inline $$\LaTeX$$ as well as a block of mathematical equations:
+This page includes an example of inline $\LaTeX$ as well as a block of mathematical equations:
 
 ## Fourier Series Representation
 
-Below is the Fourier series expansion of a periodic function $$p(t)$$:
+Below is the Fourier series expansion of a periodic function $p(t)$:
 
 $$
 \begin{align*}
