@@ -19,13 +19,10 @@ body {
 a {
   color: #007acc;
   text-decoration: none;
-  transition: color 0.2s ease, text-decoration 0.2s ease;
 }
 
-a:hover,
-a:focus {
-  color: #007acc;
-  text-decoration: underline;
+a:hover {
+  color: #005f8c;
 }
 
 /* Navigation Bar */
@@ -46,7 +43,6 @@ nav a {
   text-decoration: none;
   color: #555;
   font-weight: 500;
-  transition: color 0.2s ease;
 }
 
 nav a:hover {
@@ -63,7 +59,7 @@ nav a.current {
 h1 {
   font-size: 2rem;
   margin-bottom: 1.5rem;
-  color: #222;
+  color: #333;
 }
 
 h2 {
@@ -84,7 +80,7 @@ h2 a:hover {
 p {
   font-size: 1rem;
   margin-bottom: 1rem;
-  color: #444;
+  color: #333;
 }
 
 /* Table Styles */
@@ -94,38 +90,25 @@ table {
   width: auto;
   max-width: 90%;
   margin: 1em auto;
-  color: #333;
-  background-color: #ffffff00;
-  overflow: hidden;
   font-size: 0.8rem;
-  border-radius: 8px;
-  border-top: 1px solid #333;
-  border-bottom: 1px solid #333;
-  border-left: 1px solid #333;
-  border-right: 1px solid #333;
-}
-
-thead {
-  background-color: #ffffff00;
   color: #333;
+  background-color: transparent;
+  overflow: hidden;
 }
 
 th, td {
   padding: 4px 14px;
+  border-bottom: solid 1px #ddd;
   text-align: right;
-  border-bottom: 1px solid #333;
 }
 
-th:first-child, td:first-child {
+th:first-child, 
+td:first-child {
   text-align: left;
 }
 
-tr:hover {
+tbody tr:hover {
   background-color: #f1f1f1;
-}
-
-tbody tr:last-child td {
-  border-bottom: none;
 }
 
 /* Code Blocks */

@@ -21,17 +21,17 @@ P_j &= \frac{1}{T_0} \int_0^{T_0} p(t) e^{-ij\omega_0t} \, dt
 \end{align*}
 $$
 
-## Constitutive Law of Rubber
+## Nutrition Information of McDonald's
 
-The parameters of the rubber material constitutive model 
-are shown:
+The nutrition information of the McDonald's meal is shown below:
 
-| Index |   $\mu_i$ | $\alpha_i$ |      $D_i$ |
-| :---- | --------: | ---------: | ---------: |
-| 1     |    0.3723 |      1.545 |  9.898E-03 |
-| 2     | 6.562E-04 |      5.846 | -1.285E-02 |
-| 3     | 1.704E-02 |     -1.835 |  4.779E-04 |
-
+| Item         | Calories(Cal) | Total Fat(g) | Total Carbs(g) | Protein(g) |
+| :----------- | ------------: | -----------: | -------------: | ---------: |
+| Big Mac      |           550 |           30 |             45 |         25 |
+| Cheeseburger |           300 |           13 |             32 |         15 |
+| McChicken    |           400 |           21 |             39 |         14 |
+| Filet-O-Fish |           380 |           18 |             39 |         16 |
+| McNuggets    |           310 |           18 |             21 |         14 |
 
 ## Operators in Tcl
 
