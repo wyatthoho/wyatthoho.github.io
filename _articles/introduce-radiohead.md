@@ -1,4 +1,5 @@
 ---
+layout: post
 name: Radiohead
 origin: Abingdon, Oxfordshire, England
 ---

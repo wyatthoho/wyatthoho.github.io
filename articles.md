@@ -11,6 +11,4 @@ Put some articles here.
 
 ## [{{ article.name }}]({{article.url}})
 
-[Look at](https://jekyllrb.com/docs/pages/)
-
 {% endfor %}
