@@ -1,3 +1,5 @@
 collections:
-  articles:
+  notes:
+    output: true
+  journal:
     output: true
