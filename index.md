@@ -5,38 +5,24 @@ title: Home
 
 # Welcome
 
-{{ "Hello World!" | downcase }}
+Hello, World! I am wyatthoho. I built this website to document 
+my learning notes on various technical topics, including *Tcl/Tk*, 
+*Python*, *LaTeX*, *Markdown*, *Git*, and *Jekyll*. You will also find 
+content related to mathematics and mechanics theories here.
 
-This page includes examples of $LaTeX$, tables, and 
-script language syntax highlighting.
+To give you a quick preview, I have included some simple examples 
+of these tools below.
 
-## Fourier Series Representation
+---
 
-Below is the Fourier series expansion of a periodic function $p(t)$:
+## Exploring Tcl/Tk in Engineering
 
-$$
-\begin{align*}
-p(t) &= \sum_{j = -\infty}^{\infty} P_j e^{ij\omega_0t} \\\\
-P_j &= \frac{1}{T_0} \int_0^{T_0} p(t) e^{-ij\omega_0t} \, dt
-\end{align*}
-$$
+Tcl is a scripting language that might be less known to the general 
+public, but it is highly prevalent in specialized fields like electronic 
+design automation (EDA), computer-aided design (CAD), and computer-aided 
+engineering (CAE) software.
 
-## Nutrition Information of McDonald's
-
-The nutrition information of the McDonald's meal is shown below:
-
-| Item         | Calories(Cal) | Total Fat(g) | Total Carbs(g) | Protein(g) |
-| :----------- | ------------: | -----------: | -------------: | ---------: |
-| Big Mac      |           550 |           30 |             45 |         25 |
-| Cheeseburger |           300 |           13 |             32 |         15 |
-| McChicken    |           400 |           21 |             39 |         14 |
-| Filet-O-Fish |           380 |           18 |             39 |         16 |
-| McNuggets    |           310 |           18 |             21 |         14 |
-
-## Operators in Tcl
-
-Some operators work on numbers in general (`+`, `-`, 
-`*`, `/`, `**`, `%`):
+Here is an example of numerical operations in Tcl:
 
 ```Tcl
 % set height 174
@@ -49,9 +35,31 @@ Some operators work on numbers in general (`+`, `-`,
 2
 ```
 
-## CSV Module in Python
+Tk is a graphical user interface (GUI) toolkit. Originally developed 
+as an extension for Tcl, it has been integrated into many other 
+languages like Python, Ruby, and Perl.
 
-Read a csv file using [Python](https://www.python.org/).
+Below is a simple "Hello World" dialog created using Tk:
+
+![alt text](assets/images/tcl-hello-world.png)
+
+The corresponding Tcl code is:
+
+```Tcl
+package require Tk
+
+wm title . "hello world"
+grid [ttk::frame .f] -column 0 -row 0 -sticky nwes
+grid [ttk::label .f.l -textvariable msg] -column 0 -row 0 -sticky nwes
+set ::msg "Hello, World!"
+vwait forever
+```
+
+---
+
+## Data Automation with Python
+
+Here is a simple script to read a CSV file using Python.
 
 ```Python
 import csv
@@ -62,4 +70,61 @@ with open('input.csv', 'r') as f:
         print(rowdata)
     
     print(data.line_num)
+```
+
+---
+
+## Academic Typesetting with LaTeX
+
+$\LaTeX$ is a high-quality typesetting system widely used in 
+academia, thanks to its superior handling of complex mathematical 
+notation. 
+
+Below is the Fourier series expansion of a periodic function $p(t)$:
+
+$$
+\begin{align*}
+p(t) &= \sum_{j = -\infty}^{\infty} P_j e^{ij\omega_0t} \\\\
+P_j &= \frac{1}{T_0} \int_0^{T_0} p(t) e^{-ij\omega_0t} \, dt
+\end{align*}
+$$
+
+The formula above is rendered using the following $\LaTeX$ code:
+
+```LateX
+\begin{align*}
+    p(t) &= \sum_{j = -\infty}^{\infty} P_j e^{ij\omega_0t} \\\\
+    P_j &= \frac{1}{T_0} \int_0^{T_0} p(t) e^{-ij\omega_0t} \, dt
+\end{align*}
+```
+
+---
+
+## Documenting with Markdown
+
+Markdown is a lightweight markup language used for creating 
+formatted text with a plain-text editor. It is widely adopted 
+for its simplicity. 
+
+Below is a quick look at the nutritional information for some 
+McDonald's items using Markdown's table syntax:
+
+| Item         | Calories(Cal) | Total Fat(g) | Total Carbs(g) | Protein(g) |
+| :----------- | ------------: | -----------: | -------------: | ---------: |
+| Big Mac      |           550 |           30 |             45 |         25 |
+| Cheeseburger |           300 |           13 |             32 |         15 |
+| McChicken    |           400 |           21 |             39 |         14 |
+| Filet-O-Fish |           380 |           18 |             39 |         16 |
+| McNuggets    |           310 |           18 |             21 |         14 |
+
+The Markdown source for this table is:
+
+```
+| Item         | Calories(Cal) | Total Fat(g) | Total Carbs(g) | Protein(g) |
+| :----------- | ------------: | -----------: | -------------: | ---------: |
+| Big Mac      |           550 |           30 |             45 |         25 |
+| Cheeseburger |           300 |           13 |             32 |         15 |
+| McChicken    |           400 |           21 |             39 |         14 |
+| Filet-O-Fish |           380 |           18 |             39 |         16 |
+| McNuggets    |           310 |           18 |             21 |         14 |
 ```
