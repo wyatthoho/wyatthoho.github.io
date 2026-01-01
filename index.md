@@ -119,7 +119,7 @@ McDonald's items using Markdown's table syntax:
 
 The Markdown source for this table is:
 
-```
+```Markdown
 | Item         | Calories(Cal) | Total Fat(g) | Total Carbs(g) | Protein(g) |
 | :----------- | ------------: | -----------: | -------------: | ---------: |
 | Big Mac      |           550 |           30 |             45 |         25 |
