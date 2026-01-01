@@ -39,7 +39,7 @@ Tk is a graphical user interface (GUI) toolkit. Originally developed
 as an extension for Tcl, it has been integrated into many other 
 languages like Python, Ruby, and Perl.
 
-Below is a simple "Hello World" dialog created using Tk:
+Below is a simple dialog created using Tk:
 
 ![alt text](assets/images/tcl-hello-world.png)
 
@@ -59,7 +59,8 @@ vwait forever
 
 ## Data Automation with Python
 
-Here is a simple script to read a CSV file using Python.
+Python needs no introduction. Here is a simple script to read 
+a CSV file using Python.
 
 ```Python
 import csv
@@ -93,7 +94,7 @@ The formula above is rendered using the following $\LaTeX$ code:
 
 ```LateX
 \begin{align*}
-    p(t) &= \sum_{j = -\infty}^{\infty} P_j e^{ij\omega_0t} \\\\
+    p(t) &= \sum_{j = -\infty}^{\infty} P_j e^{ij\omega_0t} \\
     P_j &= \frac{1}{T_0} \int_0^{T_0} p(t) e^{-ij\omega_0t} \, dt
 \end{align*}
 ```
