@@ -15,7 +15,7 @@ of these tools below.
 
 ---
 
-## Exploring Tcl/Tk in Engineering
+## Exploring Tcl/Tk
 
 Tcl is a scripting language that might be less known to the general 
 public, but it is highly prevalent in specialized fields like electronic 
@@ -57,10 +57,17 @@ vwait forever
 
 ---
 
-## Data Automation with Python
+## Python at a Glance
 
-Python needs no introduction. Here is a simple script to read 
-a CSV file using Python.
+Python is celebrated for its readability and versatility. It 
+is so popular that it arguably needs no introduction.
+
+My journey with Python began with automating CAE workflows in 
+Abaqus. Since then, I have expanded its use to data science, 
+machine learning, and countless other applications. 
+
+To give a quick preview, here is a simple script to read a CSV 
+file using Python:
 
 ```Python
 import csv
