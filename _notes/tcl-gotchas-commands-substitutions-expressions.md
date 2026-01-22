@@ -5,8 +5,8 @@ name: Tcl Gotchas - Commands, Substitutions, Expressions
 
 Learn when to use `"..."`, `[...]`, and `{...}` in Tcl—and why it matters. 
 We'll break down how the interpreter parses commands, demystify substitution 
-rules, and explain the double evaluation in expr. By understanding these syntax 
-gotchas, you'll avoid common pitfalls and write more reliable Tcl code.
+rules, and explain the double evaluation in `expr`. By understanding these 
+syntax gotchas, you'll avoid common pitfalls and write more reliable Tcl code.
 
 # Script, Commands, and Words
 
