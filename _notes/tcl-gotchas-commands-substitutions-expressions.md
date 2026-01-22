@@ -3,7 +3,12 @@ layout: post
 name: Tcl Gotchas - Commands, Substitutions, Expressions
 ---
 
-## Script, Commands, and Words
+Learn when to use `"..."`, `[...]`, and `{...}` in Tcl—and why it matters. 
+We'll break down how the interpreter parses commands, demystify substitution 
+rules, and explain the double evaluation in expr. By understanding these syntax 
+gotchas, you'll avoid common pitfalls and write more reliable Tcl code.
+
+# Script, Commands, and Words
 
 A Tcl *script* is a string containing one or more *commands*.
 Semicolons and newlines are command separators. Below is a 
@@ -60,12 +65,12 @@ The specific details of these substitutions are described below.
 
 ---
 
-## Substitution
+# Substitution
 
 Before carrying out the command, the Tcl interpreter breaks the 
 command into words and performs substitutions.
 
-### Command substitution
+## Command substitution
 
 If a word contains an section enclosed by open/close bracket `[...]` 
 then Tcl performs command substitution. The Tcl interpreter process 
@@ -77,7 +82,7 @@ in place of the brackets and all of the characters between them.
 set fruit [lindex "apple banana cherry" 0];  # fruit = "apple"
 ```
 
-### Variable substitution
+## Variable substitution
 
 If a word contains a dollar sign `$`, then Tcl performs variable substitution. 
 That is, the dollar sign and the following characters are replaced in the word 
@@ -105,7 +110,7 @@ puts ${name}hoho
 # Output: wyatthoho
 ```
 
-### Backslash Substitution
+## Backslash Substitution
 
 If a backslash `\` appears within a word, then backslash 
 substitution occurs. The backslash is used to escape special 
