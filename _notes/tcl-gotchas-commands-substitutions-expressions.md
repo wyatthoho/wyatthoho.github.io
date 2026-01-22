@@ -1,5 +1,6 @@
 ---
 layout: post
+name: Tcl Gotchas - Commands, Substitutions, Expressions
 ---
 
 ## Script, Commands, and Words
