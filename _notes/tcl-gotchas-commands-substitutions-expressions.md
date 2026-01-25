@@ -152,7 +152,7 @@ Common operators include `+`, `-`, `*`, `/`, `**`, `==`, `!=`, `eq`, `ne`,
 `in`, `ni`, and others. The specific meaning of these operators is not the
 focus here, so no further explanation is provided.
 
-### The `expr` Command
+### The expr Command
 
 The `expr` command concatenates its arguments (ignoring white spaces between
 them) as a Tcl expression, evaluates the result, and returns the value.
