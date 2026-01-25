@@ -8,7 +8,7 @@ We'll break down how the interpreter parses commands, demystify substitution
 rules, and explain the double evaluation in `expr`. By understanding these 
 syntax gotchas, you'll avoid common pitfalls and write more reliable Tcl code.
 
-# Script, Commands, and Words
+## Script, Commands, and Words
 
 A Tcl *script* is a string containing one or more *commands*.
 Semicolons and newlines are command separators. Below is a 
@@ -65,12 +65,12 @@ The specific details of these substitutions are described below.
 
 ---
 
-# Substitution
+## Substitution
 
 Before carrying out the command, the Tcl interpreter breaks the 
 command into words and performs substitutions.
 
-## Command substitution
+### Command substitution
 
 If a word contains an section enclosed by open/close bracket `[...]` 
 then Tcl performs command substitution. The Tcl interpreter process 
@@ -82,7 +82,7 @@ in place of the brackets and all of the characters between them.
 set fruit [lindex "apple banana cherry" 0];  # fruit = "apple"
 ```
 
-## Variable substitution
+### Variable substitution
 
 If a word contains a dollar sign `$`, then Tcl performs variable substitution. 
 That is, the dollar sign and the following characters are replaced in the word 
@@ -110,7 +110,7 @@ puts ${name}hoho
 # Output: wyatthoho
 ```
 
-## Backslash Substitution
+### Backslash Substitution
 
 If a backslash `\` appears within a word, then backslash 
 substitution occurs. The backslash is used to escape special 
@@ -131,9 +131,9 @@ such as:
 
 ---
 
-# Tcl Expressions
+## Tcl Expressions
 
-## Expression Syntax
+### Expression Syntax
 
 A Tcl expression consists of a combination of **operands**, **operators**,
 parentheses, and commas. White space may be used between operands, operators,
@@ -152,12 +152,12 @@ Common operators include `+`, `-`, `*`, `/`, `**`, `==`, `!=`, `eq`, `ne`,
 `in`, `ni`, and others. The specific meaning of these operators is not the
 focus here, so no further explanation is provided.
 
-## The `expr` Command
+### The `expr` Command
 
 The `expr` command concatenates its arguments (ignoring white spaces between
 them) as a Tcl expression, evaluates the result, and returns the value.
 
-## Critical Point: Double Substitution
+### Critical Point: Double Substitution
 
 There is an extremely important behavior I didn't understand until I
 encountered the following error:
@@ -184,7 +184,7 @@ I couldn't figure out why the error occurred until I carefully read the
   (removing the quotes), so the `expr` command receives multiple arguments:
   `100`, `in`, `100`, `200`, `300`. This leads to a "missing operator" error.
 
-## Best Practice: Always Use Braces
+### Best Practice: Always Use Braces
 
 The [official documentation][expr] provides clear guidance on writing
 conventions:
@@ -200,7 +200,7 @@ Additionally:
 > requirements. This allows the Tcl bytecode compiler to generate the best
 > code.
 
-## Implications of Double Substitution
+### Implications of Double Substitution
 
 The double substitution procedure in Tcl creates interesting possibilities
 during calculation. Below is an example from the [official documentation][expr]:
