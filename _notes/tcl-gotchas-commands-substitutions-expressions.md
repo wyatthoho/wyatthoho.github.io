@@ -155,39 +155,44 @@ focus here, so no further explanation is provided.
 ### The expr Command
 
 The `expr` command concatenates its arguments (ignoring white spaces between
-them) as a Tcl expression, evaluates the result, and returns the value.
-
-### Critical Point: Double Substitution
-
-There is an extremely important behavior I didn't understand until I
-encountered the following error:
+them) as a Tcl expression, evaluates the result, and returns the value. Here's
+an example:
 
 ```tcl
-expr {100 in "100 200 300"};  # Output: 1
-expr 100 in "100 200 300";    # Error: missing operator at _@_
-                              # in expression "100 in 100 _@_200 300"
+expr 1 + 1 + 1
+# Output: 3
 ```
 
-I couldn't figure out why the error occurred until I carefully read the
-[official documentation][expr].
+However, let's try this:
+
+```tcl
+expr 100 in "100 200 300"
+# Error!!
+```
+
+Why did it fail? This example illustrates an extremely important behavior of `expr`, 
+according to [tcl-lang][expr]:
 
 > ... expressions are substituted twice: once by the Tcl parser and once by
 > the expr command.
 
-**How this works:**
+Applied to our case, the Tcl parser substitutes `"100 200 300"` first
+(removing the quotes), so the `expr` command receives multiple arguments:
+`100`, `in`, `100`, `200`, `300`. This leads to a "missing operator" error.
 
-- In the **first line**, the Tcl parser substitutes
-  `{100 in "100 200 300"}` as-is, then the `expr` command receives the
-  argument `100 in "100 200 300"` and evaluates it correctly.
+So, how do we write the expression correctly?
 
-- In the **second line**, the Tcl parser substitutes `"100 200 300"` first
-  (removing the quotes), so the `expr` command receives multiple arguments:
-  `100`, `in`, `100`, `200`, `300`. This leads to a "missing operator" error.
+```tcl
+expr {100 in "100 200 300"}
+# Output: 1
+```
 
-### Best Practice: Always Use Braces
+In this line, the Tcl parser leaves a **single word** `{100 in "100 200 300"}` 
+as-is, because as mentioned earlier, braces prevent all substitutions. Then the 
+`expr` command receives the argument `100 in "100 200 300"` representing 3 distinct 
+words and evaluates it correctly.
 
-The [official documentation][expr] provides clear guidance on writing
-conventions:
+The [tcl-lang][expr] provides clear guidance on writing conventions:
 
 > ... the command parser may already have performed one round of substitution
 > before the expression processor was called. ... it is usually best to
