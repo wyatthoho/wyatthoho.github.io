@@ -205,51 +205,57 @@ Additionally:
 > requirements. This allows the Tcl bytecode compiler to generate the best
 > code.
 
-### Implications of Double Substitution
-
-The double substitution procedure in Tcl creates interesting possibilities
-during calculation. Below is an example from the [official documentation][expr]:
+Unfortunately, simply placing the calculation you need within braces will not
+solve all problems. Substitution timing must be considered carefully.
 
 ```tcl
 set a 3
 set b {$a + 2}
-
-expr $b*4;             # Output: 11
-expr {$b * 4};         # Error: can't use non-numeric string as operand of "*"
-expr {[expr $b] * 4};  # Output: 20
+expr $b*4
+# Output: 11
 ```
 
-This example demonstrates how substitution timing affects expression evaluation:
+Without braces after expr, double substitution occurs. First, the Tcl parser
+replaces `$b` with `$a + 2`, resulting in `expr $a + 2*4`. Then, within `expr`,
+`$a` is replaced with `3`, giving `3 + 2*4`. Following operator precedence
+(`*` before `+`), the result is `3 + 8 = 11`.
 
-**Line 1: `expr $b*4` → Output: 11**
+```tcl
+set a 3
+set b {$a + 2}
+expr {$b * 4}
+# Error!!
+```
 
-Without braces, double substitution occurs:
-1. **First substitution** (Tcl parser): `$b` is replaced with `$a + 2`,
-   resulting in `expr $a + 2*4`
-2. **Second substitution** (`expr` command): `$a` is replaced with `3`,
-   resulting in `3 + 2*4`
-3. Following operator precedence (`*` before `+`), the result is `3 + 8 = 11`
+With braces, only one substitution occurs, so expr receives the literal
+string `$b * 4`. During evaluation, `$b` is replaced with the string `$a + 2`  
+(which is not further evaluated), resulting in `$a + 2 * 4`. Since substitution
+inside expr has already been performed, `$a` is not replaced again. The
+command then attempts to multiply the string `$a + 2` by `4`, which fails
+because it is not a numeric value.
 
-**Line 2: `expr {$b * 4}` → Error**
+```tcl
+set a 3
+set b {$a + 2}
+expr {[expr $b] * 4}
+# Output: 20
+```
 
-With braces, only one substitution occurs:
-1. **First substitution** (Tcl parser): The braces prevent substitution,
-   so `expr` receives the literal string `$b * 4`
-2. **Second substitution** (`expr` command): `$b` is replaced with the
-   string `$a + 2` (not evaluated), resulting in `$a + 2 * 4`
-3. The `expr` command tries to multiply the string `$a + 2` by `4`, which
-   fails because it's not a numeric value
+With braces, only one substitution occurs. The Tcl parser passes the expression
+`[expr $b] * 4` to the outer expr command. During evaluation, `expr` detects
+the command substitution `[...]`, which triggers a nested command execution.
+According to [tcl-lang][tcl] on command substitution:
 
-**Line 3: `expr {[expr $b] * 4}` → Output: 20**
+> If command substitution occurs then the nested command is processed entirely 
+> by the recursive call to the Tcl interpreter; no substitutions are performed 
+> before making the recursive call and no additional substitutions are 
+> performed on the result of the nested script.
 
-This uses command substitution to evaluate `$b` first:
-1. **First substitution** (Tcl parser): `[expr $b]` is evaluated
-   - `$b` becomes `$a + 2`
-   - `expr $a + 2` evaluates to `5`
-   - The expression becomes `expr {5 * 4}`
-2. **Second substitution** (`expr` command): Evaluates `5 * 4 = 20`
+Thus, `expr $b` is executed independently and returns `5`. The outer expression
+then becomes `5 * 4`, producing the expected result `20`.
 
 This example illustrates why understanding substitution order is crucial when
 working with expressions stored in variables.
 
 [expr]: https://www.tcl-lang.org/man/tcl8.6/TclCmd/expr.htm
+[tcl]: https://www.tcl-lang.org/man/tcl8.6/TclCmd/Tcl.htm
