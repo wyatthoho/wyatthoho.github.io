@@ -176,9 +176,11 @@ according to [tcl-lang][expr]:
 > ... expressions are substituted twice: once by the Tcl parser and once by
 > the expr command.
 
-Applied to our case, the Tcl parser substitutes `"100 200 300"` first
-(removing the quotes), so the `expr` command receives multiple arguments:
-`100`, `in`, `100`, `200`, `300`. This leads to a "missing operator" error.
+Applied to our case, the Tcl parser performs substitution on `"100 200 300"` 
+first (stripping the quotes). Consequently, the `expr` command receives five 
+distinct arguments: `100`, `in`, `100`, `200`, and `300`. Because `expr` 
+expects a single expression or a valid operator between these values, this 
+results in a "missing operator" error.
 
 So, how do we write the expression correctly?
 
@@ -187,10 +189,12 @@ expr {100 in "100 200 300"}
 # Output: 1
 ```
 
-In this line, the Tcl parser leaves a **single word** `{100 in "100 200 300"}` 
-as-is, because as mentioned earlier, braces prevent all substitutions. Then the 
-`expr` command receives the argument `100 in "100 200 300"` representing 3 distinct 
-words and evaluates it correctly.
+In this instance, the Tcl parser treats the braced string 
+`{100 in "100 200 300"}` as a single literal word, as braces prevent all 
+internal substitutions. Consequently, the `expr` command receives the entire 
+string as one argument. It then performs its own internal evaluation, correctly 
+identifying the three distinct components-the value, the operator, and the 
+list-and processes the expression without error.
 
 The [tcl-lang][expr] provides clear guidance on writing conventions:
 
@@ -215,10 +219,11 @@ expr $b*4
 # Output: 11
 ```
 
-Without braces after expr, double substitution occurs. First, the Tcl parser
-replaces `$b` with `$a + 2`, resulting in `expr $a + 2*4`. Then, within `expr`,
-`$a` is replaced with `3`, giving `3 + 2*4`. Following operator precedence
-(`*` before `+`), the result is `3 + 8 = 11`.
+Without braces, a double substitution occurs. First, the Tcl parser replaces 
+`$b` with the literal string `$a + 2`, passing the expression `$a + 2*4` to the 
+`expr` command. Subsequently, `expr` performs its own internal substitution, 
+replacing `$a` with `3`. This results in the calculation `3 + 2*4`, yielding a 
+final result of 11.
 
 ```tcl
 set a 3
@@ -227,12 +232,13 @@ expr {$b * 4}
 # Error!!
 ```
 
-With braces, only one substitution occurs, so expr receives the literal
-string `$b * 4`. During evaluation, `$b` is replaced with the string `$a + 2`  
-(which is not further evaluated), resulting in `$a + 2 * 4`. Since substitution
-inside expr has already been performed, `$a` is not replaced again. The
-command then attempts to multiply the string `$a + 2` by `4`, which fails
-because it is not a numeric value.
+With braces, only one level of substitution occurs. The Tcl parser passes the 
+literal string `$b * 4` directly to the `expr` command. During evaluation, 
+`expr` performs a single substitution, replacing `$b` with its value: the 
+string `$a + 2`. This results in the expression `$a + 2 * 4`. However, because 
+`expr` has already completed its substitution phase, it does not re-scan the 
+result for further variables. Consequently, it attempts to multiply the literal 
+string `$a + 2` by `4`, which triggers a numeric syntax error.
 
 ```tcl
 set a 3
@@ -241,21 +247,20 @@ expr {[expr $b] * 4}
 # Output: 20
 ```
 
-With braces, only one substitution occurs. The Tcl parser passes the expression
-`[expr $b] * 4` to the outer expr command. During evaluation, `expr` detects
-the command substitution `[...]`, which triggers a nested command execution.
-According to [tcl-lang][tcl] on command substitution:
+When using braces, the Tcl parser passes the literal string `[expr $b] * 4` 
+directly to the `expr` command. During evaluation, the `expr` engine identifies 
+the command substitution `[...]`, which pauses the current calculation to 
+trigger a nested command execution. According to [tcl-lang][tcl] on command 
+substitution:
 
 > If command substitution occurs then the nested command is processed entirely 
 > by the recursive call to the Tcl interpreter; no substitutions are performed 
 > before making the recursive call and no additional substitutions are 
 > performed on the result of the nested script.
 
-Thus, `expr $b` is executed independently and returns `5`. The outer expression
-then becomes `5 * 4`, producing the expected result `20`.
-
-This example illustrates why understanding substitution order is crucial when
-working with expressions stored in variables.
+Thus, `expr $b` is executed as an independent sub-command, returning the 
+value 5. The outer `expr` then substitutes this result into the original string, 
+simplifying the expression to `5 * 4`. This produces the expected result of 20.
 
 [expr]: https://www.tcl-lang.org/man/tcl8.6/TclCmd/expr.htm
 [tcl]: https://www.tcl-lang.org/man/tcl8.6/TclCmd/Tcl.htm
