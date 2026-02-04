@@ -3,10 +3,13 @@ layout: post
 name: Tcl Gotchas - Commands, Substitutions, Expressions
 ---
 
-Learn when to use `"..."`, `[...]`, and `{...}` in Tcl—and why it matters. 
-We'll break down how the interpreter parses commands, demystify substitution 
-rules, and explain the double evaluation in `expr`. By understanding these 
-syntax gotchas, you'll avoid common pitfalls and write more reliable Tcl code.
+In Tcl, the distinction between `"..."`, `[...]`, and `{...}` initially felt 
+like a guessing game to me. For a long time, I found myself memorizing syntax 
+case-by-case and struggling with unexpected `expr` errors without truly 
+understanding the underlying logic. This article documents my journey to 
+demystify the Tcl interpreter by breaking down substitution rules and the 
+*double evaluation* trap, transforming that initial confusion into a clearer 
+mental model.
 
 ## Script, Commands, and Words
 
@@ -59,9 +62,21 @@ The primary difference between these two grouping mechanisms is how
 | Variable $        | Supported             | Ignored        |
 | Backslash \       | Supported             | Ignored*       |
 
-*Note: Braces ignore all substitutions except for backslash-newline sequences.
+*Note: Inside braces, backslashes are generally ignored, with one major 
+exception: a backslash followed by a newline is replaced by a single space to 
+allow for multi-line formatting without breaking the string.
 
-The specific details of these substitutions are described below.
+There is another special syntax with braces called *argument expansion*. If a 
+word begins with `{*}`, the rest of the word is substituted as usual and then 
+parsed as a list. Each element of that list is then added to a command as a 
+separate argument. Example:
+
+```tcl
+set profile {name Alice age 30}
+dict create {*}$profile
+```
+
+The specific details of substitutions are described below.
 
 ---
 
@@ -261,6 +276,23 @@ substitution:
 Thus, `expr $b` is executed as an independent sub-command, returning the 
 value 5. The outer `expr` then substitutes this result into the original string, 
 simplifying the expression to `5 * 4`. This produces the expected result of 20.
+
+Expressions within `if` and `for` statements behave the same way as `expr` 
+arguments; however, the specifics of that evaluation are outside the scope of 
+this article.
+
+## Summary
+
+After systematically organizing these syntax details, the myths that once 
+confused me are now clear. Although the rules are intricate, I believe there 
+are a few basic principles to keep in mind. 
+
+- `"..."` is a word that allows substitution.
+- `{...}` is a word that prevents substitution (except for backslash-newline).
+- `[...]` invokes the Tcl interpreter *recursively* to process characters as a Tcl script.
+- Expressions are substituted once by the Tcl parser and once by the `expr` command.
+
+These principles form the basis of the more complex mechanics in Tcl.
 
 [expr]: https://www.tcl-lang.org/man/tcl8.6/TclCmd/expr.htm
 [tcl]: https://www.tcl-lang.org/man/tcl8.6/TclCmd/Tcl.htm
