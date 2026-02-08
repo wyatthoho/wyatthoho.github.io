@@ -1,6 +1,7 @@
 ---
 layout: post
 name: Tcl Gotchas - Commands, Substitutions, Expressions
+birth: 2026-01-22
 ---
 
 In Tcl, the distinction between `"..."`, `[...]`, and `{...}` initially felt 
