@@ -33,6 +33,8 @@
             margin: 0 auto;
             max-width: 600px;
             height: auto;
+            transition: transform 0.25s ease;
+            cursor: zoom-in;
         }
     </style>
 </head>
@@ -40,6 +42,20 @@
 <body>
     {% include navigation.html %}
     {{ content }}
+
+    <script>
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('click', () => {
+                if (img.style.transform === 'scale(2)') {
+                    img.style.transform = '';
+                    img.style.cursor = 'zoom-in';
+                } else {
+                    img.style.transform = 'scale(2)';
+                    img.style.cursor = 'zoom-out';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
