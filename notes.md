@@ -8,7 +8,9 @@ title: Notes
 {% for note in site.notes %}
 
 ## [{{ note.name }}]({{ note.url }})
-Published {{ note.birth | date_to_string: "ordinal", "US" }} · Updated {{ note.date | date_to_string: "ordinal", "US" }}
+Published {{ note.birth | date_to_string: "ordinal", "US" }} 
+· Updated {{ note.date | date_to_string: "ordinal", "US" }} 
+· {{ site.author }}
 
 ---
 
