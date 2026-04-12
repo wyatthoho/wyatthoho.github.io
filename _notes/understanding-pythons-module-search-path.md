@@ -12,7 +12,7 @@ According to the [official documentation][sys_path_init],
 the first entry in this list depends on how Python is invoked:
 
 | Invocation method     | First entry in `sys.path`     |
-| --------------------- | ----------------------------- |
+| --------------------- | :---------------------------- |
 | `py *.py` (Script)    | The script's parent directory |
 | `py -c cmd` (Command) | Current working directory     |
 | `py -m mod` (Module)  | Current working directory     |
