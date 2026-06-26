@@ -64,9 +64,9 @@ services:
 
 In this setup, `version: '3.8'` specifies the Docker Compose file format. The `services` section defines all containers to be deployed. Each service requires an `image` pulled from Docker Hub—a specific version can be assigned without manual installation or environment configuration. The `restart: unless-stopped` policy automatically restarts containers if they crash, unless manually stopped.
 
-The `web-app-service` runs a Python image (`python:3.12-slim`). By default, this image would start an interactive Python shell and do nothing useful. The `command` directive overrides this default behavior and instead starts Python's built-in HTTP server on port `8080`, which listens for incoming requests and sends back responses. Since this port is internal to the container, it remains hidden from the host and external users, but nginx can still reach it through the private Docker network.
+The `web-app-service` runs a Python image (`python:3.12-slim`). By default, this image would start an interactive Python shell and do nothing useful. The `command` directive overrides this default behavior and instead starts Python's built-in HTTP server on port `8080` with `python -m http.server 8080`. This server automatically listens on all network interfaces (`0.0.0.0:8080`), which allows nginx to reach it through the private Docker network. Since this port is internal to the container, it remains hidden from the host and external users.
 
-The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive binds the container's port `80` to host port `80`, but only on `127.0.0.1` (which is same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80`. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before nginx, since nginx needs the backend service to forward traffic to.
+The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive binds the container's port `80` to host port `80`, but only on `127.0.0.1` (which is the same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80`. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before nginx, since nginx needs the backend service to forward traffic to.
 
 ---
 
@@ -103,17 +103,16 @@ The `proxy_set_header` lines preserve the user's original connection details. Fi
 
 ## 3. Deployment
 
-
-To spin up this entire multi-container service, we don't need to manually run `docker run` for each container. We just need to open the terminal in the directory containing `docker-compose.yml` and execute a single command:
+To spin up this entire multi-container service, open the terminal in the directory containing `docker-compose.yml` and execute:
 
 ```bash
 docker compose up -d
 ```
 
-* **`up`**: Tells Docker to build the images (if not built yet), create the private network, and start all services in the correct order based on `depends_on`.
-* **`-d` (Detached mode)**: Runs the containers in the background, so they don’t block your terminal.
+- **`up`**: Tells Docker to build the images (if not built yet), create the private network, and start all services in the correct order based on `depends_on`.
+- **`-d` (Detached mode)**: Runs the containers in the background.
 
-If we ever need to stop and remove all these containers and the private network, we can simply run:
+To stop and remove all containers and the private network:
 
 ```bash
 docker compose down
@@ -121,9 +120,9 @@ docker compose down
 
 ---
 
-## 4. Deep Dive into the Traffic Lifecycle
+## 4. Traffic Lifecycle
 
-Now that we know how to successfully keep our minimal web service alive through deployment, let’s observe how the network traffic flows through a distinct lifecycle to complete the request-response loop when a user accesses the application:
+With the web service deployed, the following section examines how network traffic flows through the request-response lifecycle when a user accesses the application:
 
 ```
 [ Browser ] 
@@ -137,8 +136,7 @@ Now that we know how to successfully keep our minimal web service alive through 
 [ Python Web Service Container ] (Listens on internal 0.0.0.0:8080)
 ```
 
-The nginx container sits at the very front of our server, acting as a traffic controller that accepts requests and routes them to our backend application:
-
+The nginx container sits at the very front of our server, acting as a traffic controller that accepts requests and routes them to the backend application:
 
 The Request Phase:
 
@@ -150,7 +148,8 @@ The Request Phase:
 The Response Phase:
 
 1. The Python server processes the request and automatically generates a standard "Directory Listing" HTML page showing the container's internal folder structure.
-2. It is important to note that our configuration files only explicitly declare the "ingress" route (the path heading inward). This is because `proxy_pass` establishes a two-way communication channel; the configuration only needs to declare the incoming route, and the underlying protocol automatically handles the return response back to nginx, which then serves it to the browser.
+
+Note that the nginx configuration only explicitly declares the incoming route. This is because `proxy_pass` establishes a two-way communication channel; the underlying protocol automatically handles the return response back to nginx, which then serves it to the browser.
 
 ---
 
