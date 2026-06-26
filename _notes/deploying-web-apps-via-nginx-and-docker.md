@@ -54,7 +54,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "127.0.0.1:80:80"
+      - "127.0.0.1:80:80"  # [HOST_IP]:[HOST_PORT]:[CONTAINER_PORT]
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -66,7 +66,7 @@ In this setup, `version: '3.8'` specifies the Docker Compose file format. The `s
 
 The `web-app-service` runs a Python image (`python:3.12-slim`). By default, this image would start an interactive Python shell and do nothing useful. The `command` directive overrides this default behavior and instead starts Python's built-in HTTP server on port `8080` with `python -m http.server 8080`. This server automatically listens on all network interfaces (`0.0.0.0:8080`), which allows nginx to reach it through the private Docker network. Since this port is internal to the container, it remains hidden from the host and external users.
 
-The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive binds the container's port `80` to host port `80`, but only on `127.0.0.1` (which is the same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80`. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before nginx, since nginx needs the backend service to forward traffic to.
+The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive follows the format `[HOST_IP]:[HOST_PORT]:[CONTAINER_PORT]`, binding host port `80` to the container's port `80`, but only on `127.0.0.1` (which is the same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80` where nginx is listening. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before nginx, since nginx needs the backend service to forward traffic to.
 
 ---
 
@@ -76,7 +76,7 @@ An nginx configuration (`nginx.conf`) file should be created to define the routi
 
 ```nginx
 server {
-    listen 80;
+    listen 80;  # Maps to [CONTAINER_PORT] in Docker setup
     server_name localhost;
 
     location /my-app {
@@ -93,7 +93,7 @@ server {
 }
 ```
 
-This configuration defines how nginx manages web traffic. The `listen 80` directive monitors standard HTTP requests on port `80`, which is the default HTTP port—when accessing `http://<Host IP>/`, the port `80` is implied and doesn't need to be written. 
+This configuration defines how nginx manages web traffic. The `listen 80` directive specifies the container port that nginx listens on (corresponding to the `[CONTAINER_PORT]` in the Docker setup). 
 
 The `server_name localhost;` directive specifies that this server block handles requests to `localhost` (or `127.0.0.1`). The `location /my-app` block handles requests to any URL starting with `/my-app` (such as `http://localhost/my-app`), and the `proxy_pass` directive forwards these requests to `web-app-service:8080/my-app` inside the container network. 
 
@@ -141,7 +141,7 @@ The nginx container sits at the very front of our server, acting as a traffic co
 The Request Phase:
 
 1. The user navigates to `http://<HOST_IP>/my-app`.
-2. The host machine intercepts the traffic on port `80` and maps it directly into our `nginx-proxy` container.
+2. The host machine intercepts traffic on host port `80` (the default HTTP port, therefore omitted from URLs) and maps it directly to the container's port `80` in the `nginx-proxy` container.
 3. nginx reads the URL, matches it against `location /my-app`, and passes the payload over to `http://web-app-service:8080/my-app` inside the virtual network.
 4. The Python container receives the request because it is listening on all local interfaces (`0.0.0.0:8080`).
 
