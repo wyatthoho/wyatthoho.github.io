@@ -39,28 +39,22 @@ The `hello-world` container confirms Docker is properly installed. nginx and the
 
 ## 1. Configuration Setup
 
-Two Docker containers will be built: one for the nginx proxy and the other for a minimal Python application. By placing these services under the same Docker Compose file (`docker-compose.yml`), they automatically join an isolated virtual network where container names serve as internal domain names.
+Two Docker containers will be built: one for the nginx server and the other for a minimal Python application. By placing these services under the same Docker Compose file (`docker-compose.yml`), they automatically join an isolated virtual network where container names serve as internal domain names.
 
 ```yaml
 version: '3.8'
 
 services:
-  # A super simple web service running Python's built-in server
   web-app-service:
     image: python:3.12-slim
-    container_name: simple-python-app
     restart: unless-stopped
-    # Run a simple server that stays alive and listens on port 8080
     command: python -m http.server 8080
-    # Port is hidden from the host for maximum security
 
-  # Our nginx gateway container
   nginx-proxy:
     image: nginx:alpine
-    container_name: nginx-gateway
     restart: unless-stopped
     ports:
-      - "127.0.0.1:80:80" # Only nginx is exposed to the Host Loopback
+      - "127.0.0.1:80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -68,8 +62,13 @@ services:
 
 ```
 
-An nginx configuration (`nginx.conf`) file should be created to define the routing rules and map public URLs to our containerized services.
+In this setup, `version: '3.8'` specifies the Docker Compose file format. The `services` section defines all containers to be deployed. Each service requires an `image` pulled from Docker Hub—a specific version can be assigned without manual installation or environment configuration. The `restart: unless-stopped` policy automatically restarts containers if they crash, unless manually stopped.
 
+The `web-app-service` runs a Python image (`python:3.12-slim`). By default, this image would start an interactive Python shell and do nothing useful. The `command` directive overrides this default behavior and instead starts Python's built-in HTTP server on port `8080`, which listens for incoming requests and sends back responses. Since this port is internal to the container, it remains hidden from the host and external users, but nginx can still reach it through the private Docker network.
+
+The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive binds the container's port `80` to host port `80`, but only on `127.0.0.1` (which is same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80`. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before nginx, since nginx needs the backend service to forward traffic to.
+
+An nginx configuration (`nginx.conf`) file should be created to define the routing rules and map public URLs to our containerized services.
 
 ```nginx
 server {
