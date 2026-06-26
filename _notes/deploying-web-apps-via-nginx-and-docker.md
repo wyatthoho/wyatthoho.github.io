@@ -14,6 +14,29 @@ This article demonstrates a minimal web service that stays alive and responds to
 
 ---
 
+## 0. Prerequisites
+
+This guide assumes a fresh Ubuntu 22.04 LTS (or later) environment with sudo privileges.
+
+**Install Docker:**
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y docker.io docker-compose
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
+**Verify the installation:**
+```bash
+docker --version
+docker-compose --version
+docker run hello-world
+```
+
+The `hello-world` container confirms Docker is properly installed. nginx and the Python application will be containerized and automatically pulled when services are deployed, so there is no need to install or configure them on the host.
+
+---
+
 ## 1. Configuration Setup
 
 Two Docker containers will be built: one for the nginx proxy and the other for a minimal Python application. By placing these services under the same Docker Compose file (`docker-compose.yml`), they automatically join an isolated virtual network where container names serve as internal domain names.
