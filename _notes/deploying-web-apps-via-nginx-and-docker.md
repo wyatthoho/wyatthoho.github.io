@@ -6,11 +6,11 @@ birth: 2026-06-24
 
 ## Introduction
 
-**nginx** is a **web server** and reverse proxy that accepts HTTP requests from a browser, forwards them to internal services, and returns the response back. **Docker** provides the ability to run an application in an isolated environment called a **container**. 
+**nginx** is a **web server** that serves content directly to clients and also functions as a **reverse proxy**, accepting HTTP requests from clients and forwarding them to backend services before returning the responses. 
 
-Many containers can run simultaneously on a single **host** within a private network. Therefore, we can build separate containers—such as for the nginx server, frontend UI, and backend Python scripts—to construct our specific web service.
+**Docker** packages applications in isolated **containers**. Multiple containers can run simultaneously on a single **host** within a private network, enabling separate containers—such as for the nginx server, frontend UI, and backend Python—to construct our web service.
 
-In this article, we will utilize a minimal web service that stays alive and responds to incoming network requests for demonstration. The procedures to configure containers, nginx, and services will be demonstrated. Additionally, the traffic lifecycle will be explained to clarify the configurations we've done.
+This article demonstrates a minimal web service that stays alive and responds to incoming network requests. It covers Docker container and nginx server configuration, service deployment, and the traffic lifecycle to illustrate how these components work together.
 
 ---
 
