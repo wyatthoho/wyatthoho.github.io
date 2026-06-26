@@ -110,7 +110,7 @@ docker compose up -d
 ```
 
 - **`up`**: Tells Docker to build the images (if not built yet), create the private network, and start all services in the correct order based on `depends_on`.
-- **`-d` (Detached mode)**: Runs the containers in the background.
+- **`-d`**: Runs the containers in detached mode, executing in the background.
 
 To stop and remove all containers and the private network:
 
