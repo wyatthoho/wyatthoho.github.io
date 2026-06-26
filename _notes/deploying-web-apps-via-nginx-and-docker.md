@@ -125,19 +125,37 @@ docker compose down
 With the web service deployed, the following section examines how network traffic flows through the request-response lifecycle when a user accesses the application:
 
 ```text
-[ Browser ] 
+[ Browser ]
    │
-   │ (External Request: http://<HOST_IP>/my-app)
+   │ User requests: http://<HOST_IP>/my-app
    ▼
-[Host]
+┌─────────────────────────────────────┐
+│ Host Machine (127.0.0.1)            │
+│ HOST PORT 80 (HTTP default)         │
+│ Docker port mapping: 80→80          │
+└─────────────────────────────────────┘
    │
-   │ (Forwards to container port 80)
+   │ (Docker forwards to container port)
    ▼
-[ nginx Reverse Proxy Container ] (Listens on container port 80)
-   │
-   │ (Forwards to: http://web-app-service:8080/my-app)
-   ▼
-[ Python Web Service Container ] (Listens on internal 0.0.0.0:8080)
+┌─────────────────────────────────────┐
+│ Private Docker Network              │
+│ ┌─────────────────────────────────┐ │
+│ │ nginx-proxy Container           │ │
+│ │ CONTAINER PORT 80               │ │
+│ │ Matches location /my-app        │ │
+│ │ Forwards to: web-app-service... │ │
+│ └─────────────────────────────────┘ │
+│            ↓                        │
+│ ┌─────────────────────────────────┐ │
+│ │ web-app-service Container       │ │
+│ │ Python HTTP Server              │ │
+│ │ CONTAINER PORT 8080             │ │
+│ │ Listens on 0.0.0.0:8080         │ │
+│ │ Processes & responds            │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
+
+(Response returns through same path)
 ```
 
 The nginx container sits at the very front of our server, acting as a traffic controller that accepts requests and routes them to the backend application.
