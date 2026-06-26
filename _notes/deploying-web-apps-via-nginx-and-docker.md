@@ -37,7 +37,7 @@ The `hello-world` container confirms Docker is properly installed. nginx and the
 
 ---
 
-## 1. Configuration Setup
+## 1. Docker Setup
 
 Two Docker containers will be built: one for the nginx server and the other for a minimal Python application. By placing these services under the same Docker Compose file (`docker-compose.yml`), they automatically join an isolated virtual network where container names serve as internal domain names.
 
@@ -68,6 +68,10 @@ The `web-app-service` runs a Python image (`python:3.12-slim`). By default, this
 
 The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive binds the container's port `80` to host port `80`, but only on `127.0.0.1` (which is same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80`. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before nginx, since nginx needs the backend service to forward traffic to.
 
+---
+
+## 2. Nginx Setup
+
 An nginx configuration (`nginx.conf`) file should be created to define the routing rules and map public URLs to our containerized services.
 
 ```nginx
@@ -75,16 +79,8 @@ server {
     listen 80;
     server_name localhost;
 
-    client_max_body_size 50M;
-
-    # Route for our Python web application
     location /my-app {
-        # Forward traffic to the Python service container name and port
         proxy_pass http://web-app-service:8080/my-app;
-        
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -97,11 +93,15 @@ server {
 }
 ```
 
-This configuration defines how nginx manages web traffic. The `listen 80` directive monitors standard HTTP requests, while `location /my-app` targets our specific URL path prefix. Inside this block, `proxy_pass` links this path directly to our internal container's domain and port, and the proxy_set_header lines preserve the user's original connection details. Finally, the `return 404` block at the bottom serves as a catch-all security rule to reject any undefined paths.
+This configuration defines how nginx manages web traffic. The `listen 80` directive monitors standard HTTP requests on port `80`, which is the default HTTP port—when accessing `http://<Host IP>/`, the port `80` is implied and doesn't need to be written. 
+
+The `server_name localhost;` directive specifies that this server block handles requests to `localhost` (or `127.0.0.1`). The `location /my-app` block handles requests to any URL starting with `/my-app` (such as `http://localhost/my-app`), and the `proxy_pass` directive forwards these requests to `web-app-service:8080/my-app` inside the container network. 
+
+The `proxy_set_header` lines preserve the user's original connection details. Finally, the `return 404` block at the bottom serves as a catch-all security rule to reject any requests to undefined paths.
 
 ---
 
-## 2. Deployment
+## 3. Deployment
 
 
 To spin up this entire multi-container service, we don't need to manually run `docker run` for each container. We just need to open the terminal in the directory containing `docker-compose.yml` and execute a single command:
@@ -121,7 +121,7 @@ docker compose down
 
 ---
 
-## 3. Deep Dive into the Traffic Lifecycle
+## 4. Deep Dive into the Traffic Lifecycle
 
 Now that we know how to successfully keep our minimal web service alive through deployment, let’s observe how the network traffic flows through a distinct lifecycle to complete the request-response loop when a user accesses the application:
 
