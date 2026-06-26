@@ -124,14 +124,18 @@ docker compose down
 
 With the web service deployed, the following section examines how network traffic flows through the request-response lifecycle when a user accesses the application:
 
-```
+```text
 [ Browser ] 
    │
    │ (External Request: http://<HOST_IP>/my-app)
    ▼
-[ nginx Reverse Proxy Container ] (Listens on Host Port 80 via Forwarding)
+[Host]
    │
-   │ (Forwards Traffic via Private Network: http://web-app-service:8080/my-app)
+   │ (Forwards to container port 80)
+   ▼
+[ nginx Reverse Proxy Container ] (Listens on container port 80)
+   │
+   │ (Forwards to: http://web-app-service:8080/my-app)
    ▼
 [ Python Web Service Container ] (Listens on internal 0.0.0.0:8080)
 ```
