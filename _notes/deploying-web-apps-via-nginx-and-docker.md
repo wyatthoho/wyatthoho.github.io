@@ -54,7 +54,7 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "127.0.0.1:80:80"  # [HOST_IP]:[HOST_PORT]:[CONTAINER_PORT]
+      - "127.0.0.1:80:80"  # <HOST_IP>:<HOST_PORT>:<CONTAINER_PORT>
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -66,7 +66,7 @@ In this setup, `version: '3.8'` specifies the Docker Compose file format. The `s
 
 The `web-app-service` runs a Python image (`python:3.12-slim`). By default, this image would start an interactive Python shell and do nothing useful. The `command` directive overrides this default behavior and instead starts Python's built-in HTTP server on port `8080` with `python -m http.server 8080`. This server automatically listens on all network interfaces (`0.0.0.0:8080`), which allows Nginx to reach it through the private Docker network. Since this port is internal to the container, it remains hidden from the host and external users.
 
-The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive follows the format `[HOST_IP]:[HOST_PORT]:[CONTAINER_PORT]` (`127.0.0.1` is same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80`. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before Nginx, since Nginx needs the backend service to forward traffic to.
+The `nginx-proxy` service uses the `nginx:alpine` image. The `ports` directive follows the format `<HOST_IP>:<HOST_PORT>:<CONTAINER_PORT>` (`127.0.0.1` is same as `localhost`). This means requests to `http://127.0.0.1:80` on the host are forwarded directly to the container's port `80`. The `volumes` directive mounts the local `nginx.conf` file into the container as read-only (`:ro`). The `depends_on` ensures the Python service starts before Nginx, since Nginx needs the backend service to forward traffic to.
 
 ---
 
@@ -76,7 +76,7 @@ An Nginx configuration (`nginx.conf`) file should be created to define the routi
 
 ```nginx
 server {
-    listen 80;  # Maps to [CONTAINER_PORT] in Docker setup
+    listen 80;  # Listens on the <CONTAINER_PORT>
     server_name localhost;
 
     location /my-app {
