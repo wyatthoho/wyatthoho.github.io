@@ -126,36 +126,48 @@ With the web service deployed, the following section examines how network traffi
 
 ```text
 [ Browser ]
-   │
-   │ User requests: http://<HOST_IP>/my-app
-   ▼
-┌─────────────────────────────────────┐
-│ Host Machine (127.0.0.1)            │
-│ HOST PORT 80 (HTTP default)         │
-│ Docker port mapping: 80→80          │
-└─────────────────────────────────────┘
-   │
-   │ (Docker forwards to container port)
-   ▼
-┌─────────────────────────────────────┐
-│ Private Docker Network              │
-│ ┌─────────────────────────────────┐ │
-│ │ nginx-proxy Container           │ │
-│ │ CONTAINER PORT 80               │ │
-│ │ Matches location /my-app        │ │
-│ │ Forwards to: web-app-service... │ │
-│ └─────────────────────────────────┘ │
-│            ↓                        │
-│ ┌─────────────────────────────────┐ │
-│ │ web-app-service Container       │ │
-│ │ Python HTTP Server              │ │
-│ │ CONTAINER PORT 8080             │ │
-│ │ Listens on 0.0.0.0:8080         │ │
-│ │ Processes & responds            │ │
-│ └─────────────────────────────────┘ │
-└─────────────────────────────────────┘
+  |
+  | User requests: http://xxx.x.x.x/my-app
+  |
+  |     ┌> IP recognized from outside: xxx.x.x.x
+┌─|───Host───────────────────────────────────────────────────────────┐
+| |     └> IP recognized in inside: 127.0.0.1                        |
+| |                                                                  |
+| |  ┌──────────────────────────────────┐                            |
+| |  | Host Port 80                     |                            |
+| └> | - Default HTTP port              |                            |
+|    └──────────────────────────────────┘                            |
+|         │                                                          |
+|         │  Docker Daemon                                           |
+|         │  - Map Host Port 80 to Container Port 80                 |
+|         │                                                          |
+|    ┌────|────-Private Docker Network────────────────────────────┐  |
+|    │    ▼                                                       |  │
+|    │ ┌─────────────────────────────────────────────────────┐    │  |
+|    │ | Container Port 80                                   |    │  |
+|    │ └─────────────────────────────────────────────────────┘    │  |
+|    │    |                                                       │  |
+|    │    │  nginx-prox (Nginx Process)                           │  │
+|    │    │  - Listens on Container Port 80                       │  │
+|    │    │  - Recognized `/my-app` from request                  │  │
+|    │    │  - Proxy pass to: http://web-app-service:8080/my-app  │  │
+|    │    │                                                       │  │
+|    │    ▼                                                       │  │
+|    │ ┌───────────────────────────────────────┐                  │  |
+|    │ │ Container Port 8080                   │                  │  |
+|    │ └───────────────────────────────────────┘                  │  |
+|    │                                                            │  │
+|    │       web-app-service (Python Process)                     │  │
+|    │       - Listens on: 0.0.0.0:8080                           │  │
+|    │       - Processes request for /my-app                      │  │
+|    │       - Sends response back to nginx                       │  │
+|    │                                                            │  │
+|    └────────────────────────────────────────────────────────────┘  |
+|                                                                    |
+└────────────────────────────────────────────────────────────────────┘
 
 (Response returns through same path)
+
 ```
 
 The Nginx container sits at the very front of our server, acting as a traffic controller that accepts requests and routes them to the backend application.
