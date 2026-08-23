@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Notes
+title: Dev Notes
 ---
 
-# Notes
+# Dev Notes
 
-{% assign sorted_notes = site.notes | sort: "birth" | reverse %}
+{% assign sorted_notes = site.dev_notes | sort: "birth" | reverse %}
 
 {% for note in sorted_notes %}
 

@@ -1,6 +1,6 @@
 - name: Home
   link: /
-- name: Notes
-  link: /notes.html
-- name: Journal
-  link: /journal.html
+- name: Dev Notes
+  link: /dev_notes.html
+- name: CAE Hacks
+  link: /cae_hacks.html
