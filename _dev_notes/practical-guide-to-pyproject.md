@@ -15,7 +15,7 @@ This article shows, from the perspective of a newcomer to Python, what problems 
 The simplest way to structure a project is two files sitting side by side:
 
 ```
-project_1/
+my_project/
 ├── foo.py
 └── main.py
 ```
@@ -23,65 +23,65 @@ project_1/
 `foo.py` just prints something:
 
 ```python
-# project_1/foo.py
+# my_project/foo.py
 print("foo")
 ```
 
 `main.py` imports it by module name and calls it:
 
 ```python
-# project_1/main.py
+# my_project/main.py
 import foo
 ```
 
-This works fine as long as you run it from inside `project_1/`, since `''` (the current directory) is in `sys.path`:
+This works fine as long as you run it from inside `my_project/`, since `''` (the current directory) is in `sys.path`:
 
 ```
-$ cd project_1
+$ cd my_project
 $ python main.py
 foo
 ```
 
-**The problem** shows up once you try to reuse `project_1` elsewhere. Say you copy the whole folder into a new project, `project_2`, and want to call into it as a subpackage:
+**The problem** shows up once you try to reuse `my_project` elsewhere. Say you copy the whole folder into a new project, `my_app`, and want to call into it as a subpackage:
 
 ```
-project_2/
+my_app/
 ├── main.py
-└── project_1/
+└── my_project/
     ├── foo.py
     └── main.py
 ```
 
-`project_2/main.py` tries to import `project_1` as a subpackage:
+`my_app/main.py` tries to import `my_project` as a subpackage:
 
 ```python
-# project_2/main.py
-import project_1.main
+# my_app/main.py
+import my_project.main
 ```
 
 Now the import breaks:
 
 ```
-$ cd project_2
+$ cd my_app
 $ python main.py  
 Traceback (most recent call last):
-  File "C:\temp\project_2\main.py", line 1, in <module>
-    import project_1.main
-  File "C:\temp\project_2\project_1\main.py", line 1, in <module>
+  File "C:\temp\my_app\main.py", line 1, in <module>
+    import my_project.main
+  File "C:\temp\my_app\my_project\main.py", line 1, in <module>
     import foo
 ModuleNotFoundError: No module named 'foo'
 ```
 
-`foo.py` was only importable because `project_1/` itself used to be the current working directory. Once `project_1` becomes a subfolder of `project_2`, that assumption no longer holds.
+`foo.py` was only importable because `my_project/` itself used to be the current working directory. Once `my_project` becomes a subfolder of `my_app`, that assumption no longer holds.
 
-One fix is to rewrite the import inside `project_1` to be absolute, instead of relying on the working directory:
+One fix is to rewrite the import inside `my_project` to be absolute, instead of relying on the working directory:
 
 ```python
-# project_2/project_1/main.py
-import project_1.foo
+# my_app/my_project/main.py
+import my_project.foo
 ```
 
-That works for this toy example, but it doesn't scale: if `project_1` were a large codebase, rewriting every import statement by hand — and keeping them correct wherever the code gets reused — isn't realistic. What's needed instead is a way to make a project reusable without touching its internals. The following sections show how.
+That works for this toy example, but it doesn't scale: if `my_project` were a large codebase, rewriting every import statement by hand — and keeping them correct wherever the code gets reused — isn't realistic. What's needed instead is a way to make a project reusable without touching its internals. The following sections show how.
 
 ## How Python Import Works
 
@@ -127,18 +127,29 @@ setup(
 )
 ```
 
-`name`, `version`, and `packages` are the same core metadata pip needs. `packages` refers to the project's own Python packages — folders containing `__init__.py` — that get built and installed, not its third-party dependencies. `find_packages()` scans the project and auto-discovers these subpackages, so you don't have to list them by hand.
+`name`, `version`, and `packages` are the same core metadata pip needs — `packages` refers to the project's own Python packages, folders containing `__init__.py`, so `my_project/` needs one added alongside `foo.py` and `main.py` for `find_packages()` to pick it up:
+
+```
+my_project/
+├── __init__.py
+├── foo.py
+└── main.py
+```
 
 Running `python setup.py install`, or `pip install .`, executes this script and skips straight to copying the package into site-packages:
 
 ```
 site-packages/
 ├── my_project/
-│   └── __init__.py
+│   ├── __init__.py
+│   ├── foo.py
+│   └── main.py
 └── my_project-0.1.0.egg-info/
     ├── PKG-INFO
     └── SOURCES.txt
 ```
+
+`my_project-0.1.0.egg-info/` is metadata pip uses to track what got installed — it's what makes `pip show my_project` or `pip uninstall my_project` work.
 
 ---
 
@@ -223,6 +234,8 @@ where = ["src"]   # ← tells setuptools to look inside src/
 ```
 
 Without this, setuptools looks in the project root by default and won't find `src/my_project/`.
+
+Note that `[tool.setuptools.packages.find]` doesn't require an `__init__.py` the way `find_packages()` in `setup.py` did — it discovers `src/my_project/` even as a bare folder of `.py` files.
 
 ---
 
