@@ -65,9 +65,9 @@ Now the import breaks:
 $ cd project_2
 $ python main.py  
 Traceback (most recent call last):
-  File "C:\temp\main.py", line 1, in <module>
+  File "C:\temp\project_2\main.py", line 1, in <module>
     import project_1.main
-  File "C:\temp\project_1\main.py", line 1, in <module>
+  File "C:\temp\project_2\project_1\main.py", line 1, in <module>
     import foo
 ModuleNotFoundError: No module named 'foo'
 ```
@@ -101,10 +101,10 @@ Linux/Mac:
  '/usr/lib/python312.zip',
  '/usr/lib/python3.12',
  '/usr/lib/python3.12/lib-dynload',
- '/usr/local/lib/python3.12/dist-packages']
+ '/usr/local/lib/python3.12/site-packages']
 ```
 
-The first entry differs by invocation method, but that's not what we want to discuss in this article. What matters here is the entry for third-party packages: `site-packages` (Windows) or `dist-packages` (Linux/Mac).
+The first entry differs by invocation method — see [Understanding Python's Module Search Path](/dev_notes/understanding-pythons-module-search-path.html) for that — but that's not what we want to discuss in this article. What matters here is the last entry, `site-packages`, where third-party packages live.
 
 This is the directory we'll target to make our own scripts reusable from anywhere in the same environment. Getting our code in there is what **installing** means. Copying and pasting every script in by hand isn't a good way to do that — conveniently, there's a tool called `pip` that happens to take charge of exactly this.
 
@@ -142,7 +142,7 @@ site-packages/
 
 ---
 
-## Modern Packaging Method -- `pyproject.toml`
+## Modern Packaging Method — `pyproject.toml`
 
 `pyproject.toml` is the modern Python project config file. `pip install` recognizes it by default.
 
