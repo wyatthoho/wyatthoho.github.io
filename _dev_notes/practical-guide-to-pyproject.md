@@ -83,9 +83,11 @@ import my_project.foo
 
 That works for this toy example. However, if `my_project` were a large codebase, rewriting every import statement by hand isn't realistic. 
 
-What's needed instead is a way to make a project reusable without touching its internals. The following sections show how.
+What's needed instead is a way to make a project reusable without touching its internals.
 
-## How Python Import Works
+The solution is to write absolute imports from the start, then **install** the code into `site-packages` and run it from there. The following sections show how.
+
+## What is `site-packages`?
 
 When Python starts, it scans a fixed set of paths in `sys.path`. Only modules found under these paths can be `import`ed. The exact entries depend on the OS and how Python was installed:
 
@@ -132,7 +134,7 @@ where `setup.py` is:
 
 ```python
 # setup.py
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="my_project",
@@ -213,8 +215,9 @@ If the package sits directly in the project root:
 
 ```
 my_project/
-├── my_project/   ← package here
-└── tests/
+├── foo.py
+├── main.py
+└── pyproject.toml
 ```
 
 When running tests from the root, Python finds `my_project/` via `''` in `sys.path` and **bypasses site-packages entirely**. You think you're testing the installed version, but you're not.
