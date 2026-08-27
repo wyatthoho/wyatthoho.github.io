@@ -42,7 +42,7 @@ PS C:\Users\wyatt> py C:\temp\check_path.py
 
 Output:
 
-```
+```text
 ['C:\\temp',
  'C:\\Program Files\\Python312\\python312.zip',
  'C:\\Program Files\\Python312\\DLLs',
@@ -72,7 +72,7 @@ PS C:\Users\wyatt> py -c "
 
 Output:
 
-```
+```text
 ['',
  'C:\\Program Files\\Python312\\python312.zip',
  'C:\\Program Files\\Python312\\DLLs',
@@ -85,7 +85,7 @@ The same result is obtained from the interactive shell (`py` with no arguments).
 The first entry is an empty string `''`, which Python treats as the current working directory.
 We can verify this by checking the absolute path of an empty string:
 
-```
+```text
 PS C:\Users\wyatt> py -c "
 >> from pathlib import Path
 >> print(Path('').absolute())
@@ -94,7 +94,7 @@ PS C:\Users\wyatt> py -c "
 
 Output:
 
-```
+```text
 C:\Users\wyatt
 ```
 
@@ -116,7 +116,7 @@ PS C:\Users\wyatt> py -m site
 
 Output:
 
-```
+```text
 sys.path = [
     'C:\\Users\\wyatt',
     'C:\\Program Files\\Python312\\python312.zip',

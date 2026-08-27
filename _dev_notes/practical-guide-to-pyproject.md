@@ -14,7 +14,7 @@ This article shows, from the perspective of a newcomer to Python, what problems 
 
 The simplest way to structure a project is two files sitting side by side:
 
-```
+```text
 my_project/
 ├── utils.py
 └── main.py
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
 This works fine as long as you run it from inside `my_project/`:
 
-```
+```text
 $ cd my_project
 $ python main.py
 Hi
@@ -51,7 +51,7 @@ Hi
 
 **The problem** shows up once you try to reuse `my_project` elsewhere. Say you copy the whole folder into a new project, `my_app`, and want to call into it as a subpackage:
 
-```
+```text
 my_app/
 ├── my_project/
 │   ├── utils.py
@@ -68,7 +68,7 @@ import my_project.main
 
 Now the import breaks:
 
-```
+```text
 $ cd my_app
 $ python main.py
 Traceback (most recent call last):
@@ -100,7 +100,7 @@ What's needed instead is a way to make a project reusable without touching its i
 
 The solution is to write absolute imports from the start. For absolute imports to actually resolve in the dev environment, the file structure needs an extra level of nesting:
 
-```
+```text
 my_project/
 ├── my_project/        ← the actual package
 │   ├── utils.py
@@ -112,7 +112,7 @@ This way, the dev environment and the app environment line up exactly — the sa
 
 But this creates a new problem: once an app depends on many packages at once, nesting each one directly under the app folder makes the project bloated:
 
-```
+```text
 my_app/
 ├── main.py
 ├── my_project_1/
@@ -130,7 +130,7 @@ So in practice, all these packages get **installed** into `site-packages` and ru
 
 When Python starts, it scans a fixed set of paths in `sys.path`. Only modules found under these paths can be `import`ed. The exact entries depend on the OS and how Python was installed:
 
-```
+```text
 Windows:
 [...,
  'C:\\Program Files\\Python312\\python312.zip',
@@ -161,7 +161,7 @@ We all have experience using `pip` to install third-party packages, like numpy, 
 
 Take `setuptools` for example — the traditional way to package a project. Place a `setup.py` file at the project root, along with a `__init__.py` to mark where the package is. In the following example, the project root and the package share the same location:
 
-```
+```text
 my_project/
 ├── my_project/
 │   ├── __init__.py
@@ -188,7 +188,7 @@ setup(
 
 Running `python setup.py install`, or `pip install .`, executes this script and skips straight to copying the package into site-packages:
 
-```
+```text
 site-packages/
 └── my_project/
     ├── __init__.py
@@ -198,7 +198,7 @@ site-packages/
 
 But now a new problem surfaces. Run:
 
-```
+```text
 $ cd my_project
 $ python main.py
 ```
@@ -211,7 +211,7 @@ Because the `my_project/` package folder sits right next to the `main.py` you're
 
 We need to add one more layer, `src/`:
 
-```
+```text
 my_project/
 ├── src/
 │   └── my_project/
@@ -238,7 +238,7 @@ setup(
 
 Run:
 
-```
+```text
 $ python main.py
 ```
 
@@ -250,7 +250,7 @@ Since `my_project/` no longer sits directly under the project root, `main.py`'s 
 
 `pyproject.toml` is the modern Python project config file. `pip install` recognizes it by default. You need to place it at the root — no `__init__.py` needed.
 
-```
+```text
 my_project/
 ├── src/
 │   └── my_project/
