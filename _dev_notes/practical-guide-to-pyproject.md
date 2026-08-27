@@ -85,7 +85,31 @@ That works for this toy example. However, if `my_project` were a large codebase,
 
 What's needed instead is a way to make a project reusable without touching its internals.
 
-The solution is to write absolute imports from the start, then **install** the code into `site-packages` and run it from there. The following sections show how.
+The solution is to write absolute imports from the start. For absolute imports to actually resolve in the dev environment, the file structure needs an extra level of nesting:
+
+```
+my_project/
+├── main.py            ← entry point for local testing
+└── my_project/        ← the actual package
+    ├── foo.py
+    └── main.py
+```
+
+This way, the dev environment and the app environment line up exactly — the same code runs whether it sits in `my_project/` during development or gets dropped into `my_app/` as a dependency.
+
+But this creates a new problem: once an app depends on many packages at once, nesting each one directly under the app folder makes the project bloated:
+
+```
+my_app/
+├── main.py
+├── my_project_1/
+│   └── ...
+├── ...
+└── my_project_100/
+    └── ...
+```
+
+So in practice, all these packages get **installed** into `site-packages` and run from there instead. The following sections show how.
 
 ## What is `site-packages`?
 
@@ -124,8 +148,10 @@ Take `setuptools` for example — the traditional way to package a project. Plac
 
 ```
 my_project/
-├── __init__.py
-├── foo.py
+├── my_project\
+│   ├── __init__.py
+│   ├── foo.py
+│   └── main.py
 ├── main.py
 └── setup.py
 ```
@@ -149,16 +175,59 @@ Running `python setup.py install`, or `pip install .`, executes this script and 
 
 ```
 site-packages/
-├── my_project/
-│   ├── __init__.py
-│   ├── foo.py
-│   └── main.py
-└── my_project-0.1.0.egg-info/
-    ├── PKG-INFO
-    └── SOURCES.txt
+└── my_project/
+    ├── __init__.py
+    ├── foo.py
+    └── main.py
 ```
 
-`my_project-0.1.0.egg-info/` is metadata pip uses to track what got installed — it's what makes `pip show my_project` or `pip uninstall my_project` work.
+But now a new problem surfaces. Run:
+
+```
+$ cd my_project
+python .\main.py
+```
+
+Because the `my_project/` package folder sits right next to the `main.py` you're running, there's no way to tell whether the import resolved to your local source files or to the copy installed in site-packages.
+
+---
+
+## Enter the `src/` Layout
+
+We need to add one more layer, `src/`:
+
+```
+my_project/
+├── src\
+|   └── my_project\
+|       ├── __init__.py
+|       ├── foo.py
+|       └── main.py
+├── main.py
+└── setup.py
+```
+
+`setup.py` needs to change too:
+
+```python
+# setup.py
+from setuptools import find_packages, setup
+
+setup(
+    name="my_project",
+    version="0.1.0",
+    packages=find_packages("src/"),
+    package_dir={"": "src"},
+)
+```
+
+Run:
+
+```
+python main.py
+```
+
+Since `my_project/` no longer sits directly under the project root, `main.py`'s `import my_project.foo` can't resolve it locally anymore — this confirms you're running the version installed in site-packages.
 
 ---
 
@@ -168,8 +237,10 @@ site-packages/
 
 ```
 my_project/
-├── foo.py
-├── main.py
+├── src\
+|   └── my_project\
+|       ├── foo.py
+|       └── main.py
 └── pyproject.toml
 ```
 
@@ -206,43 +277,6 @@ To prevent the inconvenience, install in editable mode for development by runnin
 4. The running code lives in your local project directory
 
 The upside is that edits to source files take effect immediately on the next import — no reinstall needed.
-
----
-
-## Enter the `src/` Layout
-
-If the package sits directly in the project root:
-
-```
-my_project/
-├── foo.py
-├── main.py
-└── pyproject.toml
-```
-
-When running tests from the root, Python finds `my_project/` via `''` in `sys.path` and **bypasses site-packages entirely**. You think you're testing the installed version, but you're not.
-
-**The `src/` layout fixes this:**
-
-```
-my_project/
-├── src/
-│   └── my_project/   ← package is here
-└── tests/
-```
-
-Now `''` can't resolve `my_project/` directly, forcing you to go through the install step. Tests always run against the installed version.
-
-Moving the package into `src/` means setuptools also needs to be told where to look for it:
-
-```toml
-[tool.setuptools.packages.find]
-where = ["src"]   # ← tells setuptools to look inside src/
-```
-
-Without this, setuptools looks in the project root by default and won't find `src/my_project/`.
-
-Note that `[tool.setuptools.packages.find]` doesn't require an `__init__.py` the way `find_packages()` in `setup.py` did — it discovers `src/my_project/` even as a bare folder of `.py` files.
 
 ---
 
