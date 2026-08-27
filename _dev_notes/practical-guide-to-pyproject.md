@@ -118,7 +118,17 @@ We all have experience using `pip` to install third-party packages, like numpy, 
 
 ## Traditional Packaging Method
 
-Take `setuptools` for example — the traditional way to package a project is a `setup.py` file at the project root:
+Take `setuptools` for example — the traditional way to package a project. Place a `setup.py` file at the project root, along with a `__init__.py` to mark where the package is. In the following example, the project root and the package share the same location:
+
+```
+my_project/
+├── __init__.py
+├── foo.py
+├── main.py
+└── setup.py
+```
+
+where `setup.py` is:
 
 ```python
 # setup.py
@@ -131,14 +141,7 @@ setup(
 )
 ```
 
-`name`, `version`, and `packages` are the same core metadata pip needs — `packages` refers to the project's own Python packages, folders containing `__init__.py`, so `my_project/` needs one added alongside `foo.py` and `main.py` for `find_packages()` to pick it up:
-
-```
-my_project/
-├── __init__.py
-├── foo.py
-└── main.py
-```
+`name`, `version`, and `packages` are the same core metadata pip needs. `packages` refers to the project's own Python packages. `find_packages()` detects folders containing `__init__.py`.
 
 Running `python setup.py install`, or `pip install .`, executes this script and skips straight to copying the package into site-packages:
 
@@ -175,35 +178,23 @@ version = "0.1.0"
 
 `[project]` holds the same core metadata as `setup.py`'s `name` and `version`.
 
----
-
-## Two Ways to Install
-
-### `pip install .` (regular install)
+To install the package, you can run `pip install .`:
 
 1. pip reads `pyproject.toml`
 2. setuptools finds `my_project/`
 3. **Copies the code into site-packages**
 4. The running code lives in site-packages
 
-> Downside: after editing source files, you must re-run `pip install .` to see the changes.
+However, there is a downside. After editing source files, you must re-run `pip install .` to see the changes.
 
-### `pip install -e .` (editable install, for development)
+To prevent the inconvenience, install in editable mode for development by running `pip install -e .`:
 
 1. pip reads `pyproject.toml`
 2. setuptools finds `my_project/`
 3. **Creates a pointer in site-packages** (a `.pth` file or link) pointing to your local `my_project/` directory
 4. The running code lives in your local project directory
 
-> Upside: edits to source files take effect immediately on the next import — no reinstall needed.
-
-Files created in site-packages:
-
-```
-site-packages/
-├── my_project.egg-link              # older setuptools
-└── __editable__.my_project...pth    # newer setuptools
-```
+The upside is that edits to source files take effect immediately on the next import — no reinstall needed.
 
 ---
 
