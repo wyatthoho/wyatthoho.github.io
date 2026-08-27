@@ -23,18 +23,18 @@ my_project/
 `foo.py` just prints something:
 
 ```python
-# my_project/foo.py
+# foo.py
 print("foo")
 ```
 
 `main.py` imports it by module name and calls it:
 
 ```python
-# my_project/main.py
+# main.py
 import foo
 ```
 
-This works fine as long as you run it from inside `my_project/`, since `''` (the current directory) is in `sys.path`:
+This works fine as long as you run it from inside `my_project/`:
 
 ```
 $ cd my_project
@@ -52,10 +52,10 @@ my_app/
     └── main.py
 ```
 
-`my_app/main.py` tries to import `my_project` as a subpackage:
+The new `main.py` tries to import `my_project.main`:
 
 ```python
-# my_app/main.py
+# main.py
 import my_project.main
 ```
 
@@ -74,14 +74,16 @@ ModuleNotFoundError: No module named 'foo'
 
 `foo.py` was only importable because `my_project/` itself used to be the current working directory. Once `my_project` becomes a subfolder of `my_app`, that assumption no longer holds.
 
-One fix is to rewrite the import inside `my_project` to be absolute, instead of relying on the working directory:
+One fix is to rewrite the import inside `my_project` to be **absolute**, instead of relying on the working directory:
 
 ```python
-# my_app/my_project/main.py
+# my_project/main.py
 import my_project.foo
 ```
 
-That works for this toy example, but it doesn't scale: if `my_project` were a large codebase, rewriting every import statement by hand — and keeping them correct wherever the code gets reused — isn't realistic. What's needed instead is a way to make a project reusable without touching its internals. The following sections show how.
+That works for this toy example. However, if `my_project` were a large codebase, rewriting every import statement by hand isn't realistic. 
+
+What's needed instead is a way to make a project reusable without touching its internals. The following sections show how.
 
 ## How Python Import Works
 
