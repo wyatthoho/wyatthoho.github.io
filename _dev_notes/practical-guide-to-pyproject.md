@@ -16,22 +16,29 @@ The simplest way to structure a project is two files sitting side by side:
 
 ```
 my_project/
-├── foo.py
+├── utils.py
 └── main.py
 ```
 
-`foo.py` just prints something:
+`utils.py` defines a function that prints something:
 
 ```python
-# foo.py
-print("foo")
+# utils.py
+def say_hi():
+    print("Hi")
 ```
 
 `main.py` imports it by module name and calls it:
 
 ```python
 # main.py
-import foo
+import utils
+
+def main():
+    utils.say_hi()
+
+if __name__ == "__main__":
+    main()
 ```
 
 This works fine as long as you run it from inside `my_project/`:
@@ -39,17 +46,17 @@ This works fine as long as you run it from inside `my_project/`:
 ```
 $ cd my_project
 $ python main.py
-foo
+Hi
 ```
 
 **The problem** shows up once you try to reuse `my_project` elsewhere. Say you copy the whole folder into a new project, `my_app`, and want to call into it as a subpackage:
 
 ```
 my_app/
-├── main.py
-└── my_project/
-    ├── foo.py
-    └── main.py
+├── my_project/
+|   ├── utils.py
+|   └── main.py
+└── main.py
 ```
 
 The new `main.py` tries to import `my_project.main`:
@@ -65,20 +72,26 @@ Now the import breaks:
 $ cd my_app
 $ python main.py  
 Traceback (most recent call last):
-  File "C:\temp\my_app\main.py", line 1, in <module>
+  File "C:\my_app\main.py", line 1, in <module>
     import my_project.main
-  File "C:\temp\my_app\my_project\main.py", line 1, in <module>
-    import foo
-ModuleNotFoundError: No module named 'foo'
+  File "C:\my_app\my_project\main.py", line 1, in <module>
+    import utils
+ModuleNotFoundError: No module named 'utils'
 ```
 
-`foo.py` was only importable because `my_project/` itself used to be the current working directory. Once `my_project` becomes a subfolder of `my_app`, that assumption no longer holds.
+`utils.py` was only importable because `my_project/` itself used to be the current working directory. Once `my_project` becomes a subfolder of `my_app`, that assumption no longer holds.
 
 One fix is to rewrite the import inside `my_project` to be **absolute**, instead of relying on the working directory:
 
 ```python
 # my_project/main.py
-import my_project.foo
+import my_project.utils
+
+def main():
+    my_project.utils.say_hi()
+
+if __name__ == "__main__":
+    main()
 ```
 
 That works for this toy example. However, if `my_project` were a large codebase, rewriting every import statement by hand isn't realistic. 
@@ -89,10 +102,10 @@ The solution is to write absolute imports from the start. For absolute imports t
 
 ```
 my_project/
-├── main.py            ← entry point for local testing
-└── my_project/        ← the actual package
-    ├── foo.py
-    └── main.py
+├── my_project/        ← the actual package
+|   ├── utils.py
+|   └── main.py
+└── main.py            ← entry point for local testing
 ```
 
 This way, the dev environment and the app environment line up exactly — the same code runs whether it sits in `my_project/` during development or gets dropped into `my_app/` as a dependency.
@@ -150,7 +163,7 @@ Take `setuptools` for example — the traditional way to package a project. Plac
 my_project/
 ├── my_project\
 │   ├── __init__.py
-│   ├── foo.py
+│   ├── utils.py
 │   └── main.py
 ├── main.py
 └── setup.py
@@ -177,7 +190,7 @@ Running `python setup.py install`, or `pip install .`, executes this script and 
 site-packages/
 └── my_project/
     ├── __init__.py
-    ├── foo.py
+    ├── utils.py
     └── main.py
 ```
 
@@ -201,7 +214,7 @@ my_project/
 ├── src\
 |   └── my_project\
 |       ├── __init__.py
-|       ├── foo.py
+|       ├── utils.py
 |       └── main.py
 ├── main.py
 └── setup.py
@@ -227,7 +240,7 @@ Run:
 python main.py
 ```
 
-Since `my_project/` no longer sits directly under the project root, `main.py`'s `import my_project.foo` can't resolve it locally anymore — this confirms you're running the version installed in site-packages.
+Since `my_project/` no longer sits directly under the project root, `main.py`'s `import my_project.utils` can't resolve it locally anymore — this confirms you're running the version installed in site-packages.
 
 ---
 
@@ -239,7 +252,7 @@ Since `my_project/` no longer sits directly under the project root, `main.py`'s 
 my_project/
 ├── src\
 |   └── my_project\
-|       ├── foo.py
+|       ├── utils.py
 |       └── main.py
 └── pyproject.toml
 ```
@@ -354,3 +367,17 @@ my-project-cli = "my_project:main_cli"
 [tool.setuptools.packages.find]
 where = ["src"]
 ```
+
+---
+
+## Conclusion
+
+- **Absolute imports** make a module's location-dependent import (`import utils`) work no matter where the project is placed, which is what lets it be reused elsewhere at all.
+
+- **`site-packages`** is already on Python's `sys.path`, so installing packages there lets any project in the same environment import them without nesting dependencies directly inside the app folder.
+
+- **The `src/` layout** keeps the package out of the default import path, so a successful `import my_project` proves you're running the installed copy in `site-packages`, not a local folder that happens to shadow it.
+
+- **`pip install -e .`** points `site-packages` back at your local `src/` directory instead of copying files, so source edits take effect immediately without reinstalling.
+
+- **`pyproject.toml`** is the modern, declarative alternative to `setup.py`: one standardized file for build backend, metadata, dependencies, and entry points, read directly by `pip` without executing a script.
