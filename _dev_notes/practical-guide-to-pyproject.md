@@ -254,11 +254,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "my_project"
 version = "0.1.0"
+
+[tool.setuptools.packages.find]
+where = ["src"]
 ```
 
 `[build-system]` declares what's needed to build the project: `requires` lists the build-time dependencies, and `build-backend` says which tool actually does the building — `setuptools.build_meta` here. This is the declarative version of what `setup.py` had to be executed to figure out.
 
 `[project]` holds the same core metadata as `setup.py`'s `name` and `version`.
+
+`[tool.setuptools.packages.find]` tells setuptools to look for packages inside `src/` instead of the project root — without it, setuptools looks in the root by default and won't find `src/my_project/`.
 
 To install the package, you can run `pip install .`:
 
@@ -286,15 +291,15 @@ After packaging, you can expose a CLI command as an entry point via `[project.sc
 
 ```toml
 [project.scripts]
-my-project-cli = "my_project:main_cli"
+my-project-cli = "my_project.main:main"
 ```
 
 After `pip install .`, an executable `my-project-cli` is created in the venv's `Scripts/` (Windows) or `bin/` (Linux/Mac). It's essentially a wrapper for:
 
 ```python
 import sys
-from my_project import main_cli
-sys.exit(main_cli())
+from my_project.main import main
+sys.exit(main())
 ```
 
 Another important field is `dependencies`:
