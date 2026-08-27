@@ -126,7 +126,7 @@ So in practice, all these packages get **installed** into `site-packages` and ru
 
 ---
 
-## What is `site-packages`?
+## What is site-packages?
 
 When Python starts, it scans a fixed set of paths in `sys.path`. Only modules found under these paths can be `import`ed. The exact entries depend on the OS and how Python was installed:
 
@@ -157,7 +157,7 @@ We all have experience using `pip` to install third-party packages, like numpy, 
 
 ---
 
-## Traditional Packaging Method
+## Traditional Packaging Method — setuptools
 
 Take `setuptools` for example — the traditional way to package a project. Place a `setup.py` file at the project root, along with a `__init__.py` to mark where the package is. In the following example, the project root and the package share the same location:
 
@@ -207,7 +207,7 @@ Because the `my_project/` package folder sits right next to the `main.py` you're
 
 ---
 
-## Enter the `src/` Layout
+## Enter the src/ Layout
 
 We need to add one more layer, `src/`:
 
@@ -246,7 +246,7 @@ Since `my_project/` no longer sits directly under the project root, `main.py`'s 
 
 ---
 
-## Modern Packaging Method — `pyproject.toml`
+## Modern Packaging Method — pyproject.toml
 
 `pyproject.toml` is the modern Python project config file. `pip install` recognizes it by default. You need to place it at the root — no `__init__.py` needed.
 
@@ -309,7 +309,7 @@ After packaging, you can expose a CLI command as an entry point via `[project.sc
 my-project-cli = "my_project.main:main"
 ```
 
-After `pip install .`, an executable `my-project-cli` is created in the venv's `Scripts/` (Windows) or `bin/` (Linux/Mac). It's essentially a wrapper for:
+After `pip install .`, an executable `my-project-cli` is created in the venv's `scripts/` (Windows) or `bin/` (Linux/Mac). It's essentially a wrapper for:
 
 ```python
 import sys
@@ -374,12 +374,12 @@ where = ["src"]
 
 ## Conclusion
 
-- **Absolute imports** make a module's location-dependent import (`import utils`) work no matter where the project is placed, which is what lets it be reused elsewhere at all.
+**Absolute imports** make a module's location-dependent import (`import utils`) work no matter where the project is placed, which is what lets it be reused elsewhere at all.
 
-- **`site-packages`** is already on Python's `sys.path`, so installing packages there lets any project in the same environment import them without nesting dependencies directly inside the app folder.
+**`site-packages`** is already on Python's `sys.path`, so installing packages there lets any project in the same environment import them without nesting dependencies directly inside the app folder.
 
-- **The `src/` layout** keeps the package out of the default import path, so a successful `import my_project` proves you're running the installed copy in `site-packages`, not a local folder that happens to shadow it.
+**The `src/` layout** keeps the package out of the default import path, so a successful `import my_project` proves you're running the installed copy in `site-packages`, not a local folder that happens to shadow it.
 
-- **`pip install -e .`** points `site-packages` back at your local `src/` directory instead of copying files, so source edits take effect immediately without reinstalling.
+**`pip install -e .`** points `site-packages` back at your local `src/` directory instead of copying files, so source edits take effect immediately without reinstalling.
 
-- **`pyproject.toml`** is the modern, declarative alternative to `setup.py`: one standardized file for build backend, metadata, dependencies, and entry points, read directly by `pip` without executing a script.
+**`pyproject.toml`** is the modern, declarative alternative to `setup.py`: one standardized file for build backend, metadata, dependencies, and entry points, read directly by `pip` without executing a script.
