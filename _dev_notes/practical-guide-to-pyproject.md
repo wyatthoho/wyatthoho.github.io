@@ -162,7 +162,16 @@ site-packages/
 
 ## Modern Packaging Method — `pyproject.toml`
 
-`pyproject.toml` is the modern Python project config file. `pip install` recognizes it by default.
+`pyproject.toml` is the modern Python project config file. `pip install` recognizes it by default. You need to place it at the root — no `__init__.py` needed.
+
+```
+my_project/
+├── foo.py
+├── main.py
+└── pyproject.toml
+```
+
+where `pyproject.toml` is:
 
 ```toml
 [build-system]
