@@ -1,5 +1,5 @@
 ---
-layout: post  
+layout: post
 name: From Scripts to Packages - A Practical Guide to pyproject.toml
 birth: 2026-08-27
 ---
@@ -54,8 +54,8 @@ Hi
 ```
 my_app/
 ├── my_project/
-|   ├── utils.py
-|   └── main.py
+│   ├── utils.py
+│   └── main.py
 └── main.py
 ```
 
@@ -70,7 +70,7 @@ Now the import breaks:
 
 ```
 $ cd my_app
-$ python main.py  
+$ python main.py
 Traceback (most recent call last):
   File "C:\my_app\main.py", line 1, in <module>
     import my_project.main
@@ -103,8 +103,8 @@ The solution is to write absolute imports from the start. For absolute imports t
 ```
 my_project/
 ├── my_project/        ← the actual package
-|   ├── utils.py
-|   └── main.py
+│   ├── utils.py
+│   └── main.py
 └── main.py            ← entry point for local testing
 ```
 
@@ -123,6 +123,8 @@ my_app/
 ```
 
 So in practice, all these packages get **installed** into `site-packages` and run from there instead. The following sections show how.
+
+---
 
 ## What is `site-packages`?
 
@@ -161,7 +163,7 @@ Take `setuptools` for example — the traditional way to package a project. Plac
 
 ```
 my_project/
-├── my_project\
+├── my_project/
 │   ├── __init__.py
 │   ├── utils.py
 │   └── main.py
@@ -198,7 +200,7 @@ But now a new problem surfaces. Run:
 
 ```
 $ cd my_project
-python .\main.py
+$ python main.py
 ```
 
 Because the `my_project/` package folder sits right next to the `main.py` you're running, there's no way to tell whether the import resolved to your local source files or to the copy installed in site-packages.
@@ -211,11 +213,11 @@ We need to add one more layer, `src/`:
 
 ```
 my_project/
-├── src\
-|   └── my_project\
-|       ├── __init__.py
-|       ├── utils.py
-|       └── main.py
+├── src/
+│   └── my_project/
+│       ├── __init__.py
+│       ├── utils.py
+│       └── main.py
 ├── main.py
 └── setup.py
 ```
@@ -237,7 +239,7 @@ setup(
 Run:
 
 ```
-python main.py
+$ python main.py
 ```
 
 Since `my_project/` no longer sits directly under the project root, `main.py`'s `import my_project.utils` can't resolve it locally anymore — this confirms you're running the version installed in site-packages.
@@ -250,10 +252,10 @@ Since `my_project/` no longer sits directly under the project root, `main.py`'s 
 
 ```
 my_project/
-├── src\
-|   └── my_project\
-|       ├── utils.py
-|       └── main.py
+├── src/
+│   └── my_project/
+│       ├── utils.py
+│       └── main.py
 └── pyproject.toml
 ```
 
@@ -337,7 +339,7 @@ authors = [{name = "Your Name", email = "you@example.com"}]
 requires-python = ">=3.12"
 
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 ```
 
 Finally, a full `pyproject.toml` may look like:
@@ -359,10 +361,10 @@ dependencies = [
 ]
 requires-python = ">=3.12"
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 
 [project.scripts]
-my-project-cli = "my_project:main_cli"
+my-project-cli = "my_project.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
