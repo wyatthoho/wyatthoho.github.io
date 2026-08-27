@@ -106,9 +106,11 @@ Linux/Mac:
  '/usr/local/lib/python3.12/site-packages']
 ```
 
-The first entry differs by invocation method — see [Understanding Python's Module Search Path](/dev_notes/understanding-pythons-module-search-path.html) for that — but that's not what we want to discuss in this article. What matters here is the last entry, `site-packages`, where third-party packages live.
+The first entry (shown here as `...`) differs by invocation method — that's covered in [Understanding Python's Module Search Path](/dev_notes/understanding-pythons-module-search-path.html), not what we want to discuss in this article. What matters here is the last entry, `site-packages`, where third-party packages live.
 
-This is the directory we'll target to make our own scripts reusable from anywhere in the same environment. Getting our code in there is what **installing** means. Copying and pasting every script in by hand isn't a good way to do that — conveniently, there's a tool called `pip` that happens to take charge of exactly this.
+This is the directory we'll target to make our own scripts reusable from anywhere in the same environment, which could be the global environment or a virtual environment.
+
+Getting our code in there is what **installing** means. Copying and pasting every script in by hand isn't a good way to do that — conveniently, there's a tool called `pip` that happens to take charge of exactly this.
 
 We all have experience using `pip` to install third-party packages, like numpy, requests, or Django. For our own package to be installable through `pip` too, it first needs to be **packaged**.
 
