@@ -12,6 +12,8 @@ demystify the Tcl interpreter by breaking down substitution rules and the
 *double evaluation* trap, transforming that initial confusion into a clearer 
 mental model.
 
+---
+
 ## Script, Commands, and Words
 
 A Tcl *script* is a string containing one or more *commands*.
@@ -281,6 +283,8 @@ simplifying the expression to `5 * 4`. This produces the expected result of 20.
 Expressions within `if` and `for` statements behave the same way as `expr` 
 arguments; however, the specifics of that evaluation are outside the scope of 
 this article.
+
+---
 
 ## Summary
 
