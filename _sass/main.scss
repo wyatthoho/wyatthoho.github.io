@@ -33,8 +33,12 @@
   --font-size-marker: 0.70em;
   --font-size-blockquote: 0.90rem;
 
+  // Typography - Line Heights
+  --line-height-body: 1.5;
+  --line-height-heading: 1.2;
+
   // Spacing
-  --spacing-xs: 0.3rem;
+  --spacing-xs: 0.5rem;
   --spacing-sm: 1.0rem;
   --spacing-md: 1.5rem;
   --spacing-lg: 1.8rem;
@@ -76,7 +80,7 @@ html {
 body {
   font-family: var(--font-body);
   font-size: var(--font-size-body);
-  line-height: 1.6;
+  line-height: var(--line-height-body);
   color: var(--color-text);
   background-color: var(--color-bg-body);
   max-width: var(--body-max-width);
@@ -94,14 +98,14 @@ h1 {
   font-size: var(--font-size-h1);
   margin-bottom: var(--spacing-md);
   text-align: left;
-  line-height: 1.2;
+  line-height: var(--line-height-heading);
 }
 
 h2 {
   font-size: var(--font-size-h2);
   margin-bottom: var(--spacing-sm);
   text-align: left;
-  line-height: 1.2;
+  line-height: var(--line-height-heading);
 
   a {
     color: var(--color-link);
@@ -117,7 +121,7 @@ h3 {
   font-size: var(--font-size-h3);
   margin-bottom: var(--spacing-sm);
   text-align: left;
-  line-height: 1.2;
+  line-height: var(--line-height-heading);
 }
 
 hr {
@@ -126,7 +130,7 @@ hr {
 
 // Paragraphs
 p {
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
   text-align: justify;
 }
 
@@ -243,7 +247,7 @@ pre code {
   background-color: var(--color-code-bg) !important;
   border-radius: var(--border-radius-md);
   overflow-x: auto;
-  line-height: 1.6;
+  line-height: var(--line-height-body);
 }
 
 /* ==========================================
@@ -254,11 +258,10 @@ blockquote {
   margin: var(--spacing-sm) 0;
   padding: var(--spacing-sm) var(--spacing-md);
   border-left: var(--border-width-blockquote) solid var(--color-border);
-  // border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
   background-color: var(--color-code-bg);
   font-style: italic;
   color: var(--color-text);
-  line-height: 1.6;
+  line-height: var(--line-height-body);
 }
 
 blockquote p {
