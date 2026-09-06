@@ -5,6 +5,7 @@
   // Colors - Text & Background
   --color-text: #333333;
   --color-text-nav: #bbbbbb;
+  --color-text-meta: #666666;
   --color-bg-body: #f9f9f9;
   --color-bg-nav: #ffffff;
   --color-link: #007acc;
@@ -32,6 +33,7 @@
   --font-size-table: 0.85rem;
   --font-size-marker: 0.70em;
   --font-size-blockquote: 0.90rem;
+  --font-size-meta: 0.85rem;
 
   // Typography - Line Heights
   --line-height-body: 1.5;
@@ -132,6 +134,17 @@ hr {
 p {
   margin-bottom: var(--spacing-xs);
   text-align: justify;
+}
+
+.post-meta {
+  font-size: var(--font-size-meta);
+  color: var(--color-text-meta);
+}
+
+// Tighten gap when meta line directly follows a heading
+h2+.post-meta,
+h3+.post-meta {
+  margin-top: calc(-1 * var(--spacing-sm) + var(--spacing-xs));
 }
 
 /* ==========================================

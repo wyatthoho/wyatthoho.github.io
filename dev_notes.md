@@ -9,11 +9,13 @@ title: Dev Notes
 
 {% for note in sorted_notes %}
 
-## [{{ note.name }}]({{ note.url }})
+### [{{ note.name }}]({{ note.url }})
+
+<p class="post-meta">
 Published {{ note.birth | date_to_string: "ordinal", "US" }} 
 · Updated {{ note.date | date_to_string: "ordinal", "US" }} 
 · {{ site.author }}
-
----
+</p>
+<br>
 
 {% endfor %}

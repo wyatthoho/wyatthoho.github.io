@@ -3,10 +3,11 @@ layout: default
 ---
 
 <h1>{{ page.name }}</h1>
-<p>
+<p class="post-meta">
     Published {{ page.birth | date_to_string: "ordinal", "US" }}
     · Updated {{ page.date | date_to_string: "ordinal", "US" }}
     · {{ site.author }}
 </p>
+<br>
 
 {{ content }}
