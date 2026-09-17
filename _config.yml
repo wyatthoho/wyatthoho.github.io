@@ -9,3 +9,5 @@ collections:
     output: true
   dev_notes:
     output: true
+  ml_notes:
+    output: true
