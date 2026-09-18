@@ -1,7 +1,7 @@
 ---
 layout: post
 name: A Roadmap to Gradient Descent Optimizers
-birth: 2026-09-17
+birth: 2026-09-19
 ---
 ## The Basic Form of Gradient Descent
  
