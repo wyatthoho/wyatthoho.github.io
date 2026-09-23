@@ -16,7 +16,15 @@ $$\begin{equation} J\left(\theta^{t}\right) = \frac{1}{2m}\sum_{i=1}^{m}{\left(h
  
 This update rule, known as **Batch GD** because it uses the entire batch of $m$ examples at every step, computes $\theta_j^{t+1}$, the new value of the $j$-th parameter after this step:
  
-$$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \alpha \frac{1}{m}\sum_{i=1}^{m}{\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)}} \end{equation}$$
+$$
+\begin{equation} 
+\begin{split}
+\theta_j^{t+1} 
+&= \theta_j^{t} - \alpha \frac{\partial}{\partial\theta_j^{t}} J\left(\theta^{t}\right) \\
+&= \theta_j^{t} - \alpha \frac{1}{m}\sum_{i=1}^{m}{\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)}} \\
+\end{split}
+\end{equation}
+$$
  
 The constant $\alpha$ is the learning rate, a hyperparameter that controls how large each update step is; it is typically set somewhere between $0.001$ and $0.01$. Repeat this update until convergence to obtain the trained parameters $\theta_0, \theta_1, \dots, \theta_n$ that define the fitted hypothesis.
  
@@ -30,7 +38,15 @@ $$\begin{equation} J^{(i)}\left(\theta^{t}\right) = \frac{1}{2}\left(h^{t,(i)}-y
  
 This update rule uses only the $i$-th example, and $t$ increments after every single example rather than after every epoch:
  
-$$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \alpha\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)} \end{equation}$$
+$$
+\begin{equation} 
+\begin{split}
+\theta_j^{t+1} 
+&= \theta_j^{t} - \alpha \frac{\partial}{\partial\theta_j^{t}} J^{(i)}\left(\theta^{t}\right) \\
+&= \theta_j^{t} - \alpha\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)} \\
+\end{split}
+\end{equation}
+$$
  
 Although each step only looks at one example, the gradient computed from it is still an unbiased estimator of the true gradient over the full dataset — so while individual steps are noisy, they average out to roughly the right direction over many updates.
  
@@ -42,7 +58,17 @@ Rather than a single example as in SGD, Mini-batch GD updates the parameters usi
  
 $$\begin{equation} J_{B_t}\left(\theta^{t}\right) = \frac{1}{2b}\sum_{i\in B_t}{\left(h^{t,(i)}-y^{(i)}\right)^2} \end{equation}$$
  
-$$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \alpha \frac{1}{b}\sum_{i\in B_t}{\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)}} \end{equation}$$
+This update rule uses the $b$ examples in $B_t$, and $t$ increments after every mini-batch rather than after every epoch:
+ 
+$$
+\begin{equation} 
+\begin{split}
+\theta_j^{t+1} 
+&= \theta_j^{t} - \alpha \frac{\partial}{\partial\theta_j^{t}} J_{B_t}\left(\theta^{t}\right) \\
+&= \theta_j^{t} - \alpha \frac{1}{b}\sum_{i\in B_t}{\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)}} \\
+\end{split}
+\end{equation}
+$$
  
 Setting $b=m$ recovers Batch GD; setting $b=1$ recovers SGD.
  
