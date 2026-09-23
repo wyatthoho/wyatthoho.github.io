@@ -72,7 +72,9 @@ $$
  
 Setting $b=m$ recovers Batch GD; setting $b=1$ recovers SGD.
  
-> The sections above (Batch GD, SGD, Mini-batch GD) are all about one question: **how many examples should be used** to compute the gradient at each step. The sections below (Momentum, AdaGrad, RMSProp, Adam) answer a different question: once a gradient has been computed, however many examples it came from, how should it be used to decide the direction and size of the update. These two questions are independent of each other, so the gradient term $\dfrac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right)$ used below could in principle come from Batch GD, SGD, or Mini-batch GD — in practice, it is almost always paired with Mini-batch GD.
+> The sections above (Batch GD, SGD, Mini-batch GD) all address **how many examples to use** when computing the gradient. The sections below (Momentum, AdaGrad, RMSProp, Adam) address a different, independent question: **how to use that gradient to decide the update's direction and size**.
+>
+> As a result, the gradient term $\partial J / \partial \theta_j^{t}$ used below could in principle come from Batch GD, SGD, or Mini-batch GD — in practice, though, it is almost always paired with Mini-batch GD.
  
 ---
  
