@@ -3,7 +3,8 @@ layout: post
 name: A Roadmap to Gradient Descent Optimizers
 birth: 2026-09-19
 ---
-## The Basic Form of Gradient Descent
+
+## The Basic Form of Gradient Descent, Batch GD
  
 Here, $h^{t,(i)}$ is the model's predicted value for the $i$-th example at iteration $t$, and $J$ is the cost function that measures how far those predictions are from the true values $y^{(i)}$. The index $i$ runs over the $m$ training examples, while $j$ runs over the $n+1$ parameters ($\theta_0, \theta_1, \dots, \theta_n$).
  
@@ -13,7 +14,7 @@ $$\begin{equation} h^{t,(i)} = \theta_0^{t} x_0^{(i)} + \theta_1^{t} x_1^{(i)} +
  
 $$\begin{equation} J\left(\theta^{t}\right) = \frac{1}{2m}\sum_{i=1}^{m}{\left(h^{t,(i)}-y^{(i)}\right)^2} \end{equation}$$
  
-This update rule computes $\theta_j^{t+1}$, the new value of the $j$-th parameter after this step, using all $m$ examples:
+This update rule, known as **Batch GD** because it uses the entire batch of $m$ examples at every step, computes $\theta_j^{t+1}$, the new value of the $j$-th parameter after this step:
  
 $$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \alpha \frac{1}{m}\sum_{i=1}^{m}{\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)}} \end{equation}$$
  
@@ -135,7 +136,7 @@ The numerator $\hat s_j^{t+1}$ comes from Momentum (deciding direction); the den
  
 | Section | Method | Problem addressed |
 |:---|:---|:---|
-| The Basic Form | GD | — |
+| The Basic Form | Batch GD | — |
 | Stochastic Gradient Descent | SGD | GD is too slow on large datasets |
 | Mini-batch Gradient Descent | Mini-batch GD | SGD is too unstable |
 | Smoothing the Update Direction | Momentum | Oscillating update direction |
