@@ -77,29 +77,25 @@ Setting $b=m$ recovers Batch GD; setting $b=1$ recovers SGD.
 > As a result, the gradient term $\partial J / \partial \theta_j^{t}$ used below could in principle come from Batch GD, SGD, or Mini-batch GD — in practice, though, it is almost always paired with Mini-batch GD.
  
 ---
- 
+
 ## Smoothing the Update Direction - Momentum
- 
-The term $s_j^{t}$ denotes the first moment (an exponential moving average of the gradient); it is written as $s$ rather than the more common $m$ to avoid colliding with $m$, the number of training examples.
- 
-$$\begin{equation} s_j^{t+1} = \beta_1\, s_j^{t} + (1-\beta_1)\,\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right) \end{equation}$$
- 
-$$\begin{equation} s_j^{0}=0 \end{equation}$$
- 
-$$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \alpha\, s_j^{t+1} \end{equation}$$
- 
+
 The raw gradient at any single step can point in a noisy or oscillating direction, especially when different mini-batches or examples disagree with each other.
- 
-Instead of moving purely in the direction of the current negative gradient, the update rule above combines the current gradient, weighted by $(1-\beta_1)$, with the previous $s_j^{t}$, weighted by $\beta_1$.
- 
+
+The term $s_j^{t}$ denotes the first moment. Instead of moving purely in the direction of the current negative gradient, the update rule combines the current gradient, weighted by $(1-\beta_1)$, with the previous $s_j^{t}$, weighted by $\beta_1$.
+
+$$\begin{equation} s_j^{t+1} = \beta_1\, s_j^{t} + (1-\beta_1)\,\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right) \end{equation}$$
+
+$$\begin{equation} s_j^{0}=0 \end{equation}$$
+
+$$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \alpha\, s_j^{t+1} \end{equation}$$
+
 Since $s_j^{t}$ was built the same way from $s_j^{t-1}$, each past gradient keeps getting carried forward, shrinking by another factor of $\beta_1$ with every step — so $s_j^{t+1}$ is really a weighted average over recent gradients, not just the current one.
- 
-This is the same idea as a ball rolling downhill carrying momentum from its previous motion, rather than reacting only to the slope right beneath it — hence the method's name.
- 
+
 In practice, $\beta_1$ is typically $0.9$, and because each step's contribution shrinks by a factor of $\beta_1$, the effective memory length works out to about $1/(1-\beta_1)=10$ steps — so the update direction reflects roughly the last 10 steps' worth of gradients, rather than being dominated by the noise of any single one.
- 
-Momentum still applies the same learning rate $\alpha$ to every parameter $\theta_j$, though — it smooths out the direction of the update, but has no way to give different parameters different step sizes.
- 
+
+Momentum still applies the same learning rate $\alpha$ to every parameter $\theta_j$. The sections below (AdaGrad, RMSProp, Adam) instead adapt the learning rate itself, to control the size of each parameter's step.
+
 ---
  
 ## Giving Each Parameter Its Own Learning Rate - AdaGrad
