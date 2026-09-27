@@ -158,12 +158,12 @@ The numerator $\hat s_j^{t+1}$ comes from Momentum (deciding direction); the den
 
 ## Summary Table
 
-| Section | Method | Problem addressed |
-|:---|:---|:---|
-| The Basic Form | Batch GD | — |
-| Stochastic Gradient Descent | SGD | GD is too slow on large datasets |
-| Mini-batch Gradient Descent | Mini-batch GD | SGD is too unstable |
-| Smoothing the Update Direction | Momentum | Oscillating update direction |
-| Giving Each Parameter Its Own Learning Rate | AdaGrad | Different parameters need different learning rates |
-| Stopping the Learning Rate From Shrinking to Zero | RMSProp | AdaGrad's learning rate decays to 0 |
-| Combining Momentum and RMSProp | Adam | Needs both smooth direction and adaptive step size |
+| Method | Problem Addressed |
+|:---|:---|
+| Batch GD | Baseline — no prior problem to fix |
+| SGD | Batch GD is too slow on large datasets |
+| Mini-batch GD | SGD is too unstable |
+| Momentum | Oscillating update direction |
+| AdaGrad | Different parameters need different learning rates |
+| RMSProp | AdaGrad's learning rate decays to 0 |
+| Adam | Momentum's learning rate is fixed; RMSProp's direction is still noisy |
