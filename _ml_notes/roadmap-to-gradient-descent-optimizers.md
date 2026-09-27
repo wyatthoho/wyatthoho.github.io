@@ -26,7 +26,7 @@ $$
 \end{equation}
 $$
  
-The constant $\alpha$ is the learning rate, a hyperparameter that controls how large each update step is; it is typically set somewhere between $0.001$ and $0.01$. Repeat this update until convergence to obtain the trained parameters $\theta_0, \theta_1, \dots, \theta_n$ that define the fitted hypothesis.
+The direction of each step is determined by the negative gradient, while the size of the step is controlled by the gradient's own magnitude and the learning rate $\alpha$, a hyperparameter typically set somewhere between $0.001$ and $0.01$. Repeat this update until convergence to obtain the trained parameters $\theta_0, \theta_1, \dots, \theta_n$ that define the fitted hypothesis.
  
 ---
  
