@@ -5,77 +5,77 @@ birth: 2026-09-19
 ---
 
 ## The Basic Form of Gradient Descent, Batch GD
- 
+
 Here, $h^{t,(i)}$ is the model's predicted value for the $i$-th example at iteration $t$, and $J$ is the cost function that measures how far those predictions are from the true values $y^{(i)}$. The index $i$ runs over the $m$ training examples, while $j$ runs over the $n+1$ parameters ($\theta_0, \theta_1, \dots, \theta_n$).
- 
+
 By convention, $x_0^{(i)}=1$ for every example, so that $\theta_0$ is the intercept.
- 
+
 $$\begin{equation} h^{t,(i)} = \theta_0^{t} x_0^{(i)} + \theta_1^{t} x_1^{(i)} + \dots + \theta_n^{t} x_n^{(i)} \end{equation}$$
- 
+
 $$\begin{equation} J\left(\theta^{t}\right) = \frac{1}{2m}\sum_{i=1}^{m}{\left(h^{t,(i)}-y^{(i)}\right)^2} \end{equation}$$
- 
+
 This update rule, known as **Batch GD** because it uses the entire batch of $m$ examples at every step, computes $\theta_j^{t+1}$, the new value of the $j$-th parameter after this step:
- 
+
 $$
-\begin{equation} 
+\begin{equation}
 \begin{split}
-\theta_j^{t+1} 
+\theta_j^{t+1}
 &= \theta_j^{t} - \alpha \frac{\partial}{\partial\theta_j^{t}} J\left(\theta^{t}\right) \\
 &= \theta_j^{t} - \alpha \frac{1}{m}\sum_{i=1}^{m}{\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)}} \\
 \end{split}
 \end{equation}
 $$
- 
+
 The direction of each step is determined by the negative gradient, while the size of the step is controlled by the gradient's own magnitude and the learning rate $\alpha$, a hyperparameter typically set somewhere between $0.001$ and $0.01$. Repeat this update until convergence to obtain the trained parameters $\theta_0, \theta_1, \dots, \theta_n$ that define the fitted hypothesis.
- 
+
 ---
- 
+
 ## Stochastic Gradient Descent, SGD
- 
+
 SGD updates the parameters using **one** randomly chosen training example at a time, rather than the full dataset — this randomness is where the name "stochastic" comes from, and it avoids the cost of computing the gradient over all $m$ examples on every step as Batch GD does.
- 
+
 $$\begin{equation} J^{(i)}\left(\theta^{t}\right) = \frac{1}{2}\left(h^{t,(i)}-y^{(i)}\right)^2 \end{equation}$$
- 
+
 This update rule uses only the $i$-th example, and $t$ increments after every single example rather than after every epoch:
- 
+
 $$
-\begin{equation} 
+\begin{equation}
 \begin{split}
-\theta_j^{t+1} 
+\theta_j^{t+1}
 &= \theta_j^{t} - \alpha \frac{\partial}{\partial\theta_j^{t}} J^{(i)}\left(\theta^{t}\right) \\
 &= \theta_j^{t} - \alpha\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)} \\
 \end{split}
 \end{equation}
 $$
- 
+
 Although each step only looks at one example, the gradient computed from it is still an unbiased estimator of the true gradient over the full dataset — so while individual steps are noisy, they average out to roughly the right direction over many updates.
- 
+
 ---
- 
+
 ## Mini-batch Gradient Descent
- 
+
 Rather than a single example as in SGD, Mini-batch GD updates the parameters using a small batch at a time, trading some of SGD's speed for a less noisy gradient estimate. Let $b$ be the batch size ($1<b<m$), and let $B_t$ be the set of the $b$ example indices sampled at iteration $t$:
- 
+
 $$\begin{equation} J_{B_t}\left(\theta^{t}\right) = \frac{1}{2b}\sum_{i\in B_t}{\left(h^{t,(i)}-y^{(i)}\right)^2} \end{equation}$$
- 
+
 This update rule uses the $b$ examples in $B_t$, and $t$ increments after every mini-batch rather than after every epoch:
- 
+
 $$
-\begin{equation} 
+\begin{equation}
 \begin{split}
-\theta_j^{t+1} 
+\theta_j^{t+1}
 &= \theta_j^{t} - \alpha \frac{\partial}{\partial\theta_j^{t}} J_{B_t}\left(\theta^{t}\right) \\
 &= \theta_j^{t} - \alpha \frac{1}{b}\sum_{i\in B_t}{\left(h^{t,(i)}-y^{(i)}\right)x_j^{(i)}} \\
 \end{split}
 \end{equation}
 $$
- 
+
 Setting $b=m$ recovers Batch GD; setting $b=1$ recovers SGD.
- 
+
 > The sections above (Batch GD, SGD, Mini-batch GD) all address **how many examples to use** when computing the gradient. The sections below (Momentum, AdaGrad, RMSProp, Adam) address a different, independent question: **how to use that gradient to decide the update's direction and size**.
 >
 > As a result, the gradient term $\partial J / \partial \theta_j^{t}$ used below could in principle come from Batch GD, SGD, or Mini-batch GD — in practice, though, it is almost always paired with Mini-batch GD.
- 
+
 ---
 
 ## Smoothing the Update Direction - Momentum
@@ -97,67 +97,67 @@ In practice, $\beta_1$ is typically $0.9$, and because each step's contribution 
 Momentum still applies the same learning rate $\alpha$ to every parameter $\theta_j$. The sections below (AdaGrad, RMSProp, Adam) instead adapt the learning rate itself, to control the size of each parameter's step.
 
 ---
- 
+
 ## Giving Each Parameter Its Own Learning Rate - AdaGrad
- 
+
 AdaGrad gives each parameter, $\theta_j^t$, its own effective learning rate, based on how large its past gradients have been — parameters with a history of large gradients get smaller steps, and parameters with a history of small gradients get larger ones.
- 
+
 The term $r_j^{t}$ denotes the second moment — the accumulated squared gradient for parameter $j$.
- 
+
 $$\begin{equation} r_j^{t+1} = r_j^{t} + \left(\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right)\right)^2 \end{equation}$$
- 
+
 $$\begin{equation} r_j^{0}=0 \end{equation}$$
- 
+
 $$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \frac{\alpha}{\sqrt{r_j^{t+1}+\epsilon}}\,\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right) \end{equation}$$
- 
+
 Notably, $r_j^{t}$ accumulates **without decay, indefinitely**, so as $t$ grows the effective learning rate $\dfrac{\alpha}{\sqrt{r_j^{t+1}+\epsilon}}$ monotonically shrinks toward 0, and learning effectively stalls late in training.
- 
+
 ---
- 
+
 ## Stopping the Learning Rate From Shrinking to Zero - RMSProp
- 
+
 RMSProp builds on AdaGrad's idea, but only accumulates the squared gradient over recent steps rather than over all of history:
- 
+
 $$\begin{equation} r_j^{t+1} = \beta_2\, r_j^{t} + (1-\beta_2)\left(\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right)\right)^2 \end{equation}$$
- 
+
 $$\begin{equation} r_j^{0}=0 \end{equation}$$
- 
+
 $$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \frac{\alpha}{\sqrt{r_j^{t+1}+\epsilon}}\,\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right) \end{equation}$$
- 
+
 In practice, $\beta_2$ is typically $0.9$ or $0.999$, so that $r_j^{t}$ only reflects the gradient magnitude over a recent window, and the effective learning rate no longer decays monotonically to 0. The small constant $\epsilon$ in the denominator, typically $10^{-8}$, exists purely to prevent division by zero when $r_j^{t+1}$ is very close to 0.
- 
+
 ---
- 
+
 ## Combining Momentum and RMSProp - Adam
- 
+
 Adam combines the two ideas from the previous two sections: it keeps Momentum's smoothed direction and RMSProp's per-parameter learning rate, computing both a first moment and a second moment at every step.
- 
+
 The first moment is computed the same way as in Momentum:
- 
+
 $$\begin{equation} s_j^{t+1} = \beta_1\, s_j^{t} + (1-\beta_1)\,\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right) \end{equation}$$
- 
+
 The second moment is computed the same way as in RMSProp:
- 
+
 $$\begin{equation} r_j^{t+1} = \beta_2\, r_j^{t} + (1-\beta_2)\left(\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right)\right)^2 \end{equation}$$
- 
+
 Since $s_j^{0}=r_j^{0}=0$, the early estimates are biased toward 0, so a bias correction is applied:
- 
+
 $$\begin{equation} \hat{s}_j^{t+1} = \frac{s_j^{t+1}}{1-\beta_1^{\,t+1}}, \qquad \hat{r}_j^{t+1} = \frac{r_j^{t+1}}{1-\beta_2^{\,t+1}} \end{equation}$$
- 
+
 Note that $\beta_1^{\,t+1}$ and $\beta_2^{\,t+1}$ here mean $\beta_1$ and $\beta_2$ raised to the power $t+1$ — this is different from the superscript $t$ used elsewhere in this note to mark the iteration number.
- 
+
 With $\beta_1=0.9$ and $\beta_2=0.999$ typically, both terms start close to 1 when $t$ is small (making the correction large) and decay toward 0 as $t$ grows (making the correction negligible), which is exactly the behavior needed to offset the bias from $s_j^{0}=r_j^{0}=0$.
- 
+
 Putting the corrected first and second moments together, the final update rule is:
- 
+
 $$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \alpha\, \frac{\hat{s}_j^{t+1}}{\sqrt{\hat{r}_j^{t+1}}+\epsilon} \end{equation}$$
- 
+
 The numerator $\hat s_j^{t+1}$ comes from Momentum (deciding direction); the denominator $\sqrt{\hat r_j^{t+1}}$ comes from RMSProp (deciding step size); dividing one by the other gives Adam.
- 
+
 ---
- 
+
 ## Summary Table
- 
+
 | Section | Method | Problem addressed |
 |:---|:---|:---|
 | The Basic Form | Batch GD | — |
@@ -167,4 +167,3 @@ The numerator $\hat s_j^{t+1}$ comes from Momentum (deciding direction); the den
 | Giving Each Parameter Its Own Learning Rate | AdaGrad | Different parameters need different learning rates |
 | Stopping the Learning Rate From Shrinking to Zero | RMSProp | AdaGrad's learning rate decays to 0 |
 | Combining Momentum and RMSProp | Adam | Needs both smooth direction and adaptive step size |
- 
