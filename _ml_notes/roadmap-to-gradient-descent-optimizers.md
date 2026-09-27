@@ -100,7 +100,7 @@ Momentum still applies the same learning rate $\alpha$ to every parameter $\thet
 
 ## Giving Each Parameter Its Own Learning Rate - AdaGrad
 
-AdaGrad gives each parameter, $\theta_j^t$, its own effective learning rate, based on how large its past gradients have been — parameters with a history of large gradients get smaller steps, and parameters with a history of small gradients get larger ones.
+AdaGrad gives each parameter, $\theta_j^t$, its own effective learning rate, based on how large its past gradients have been — parameters with a history of large gradients get a smaller effective learning rate, and parameters with a history of small gradients get a larger one.
 
 The term $r_j^{t}$ denotes the second moment — the accumulated squared gradient for parameter $j$.
 
@@ -124,7 +124,7 @@ $$\begin{equation} r_j^{0}=0 \end{equation}$$
 
 $$\begin{equation} \theta_j^{t+1} = \theta_j^{t} - \frac{\alpha}{\sqrt{r_j^{t+1}+\epsilon}}\,\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right) \end{equation}$$
 
-In practice, $\beta_2$ is typically $0.9$ or $0.999$, so that $r_j^{t}$ only reflects the gradient magnitude over a recent window, and the effective learning rate no longer decays monotonically to 0. The small constant $\epsilon$ in the denominator, typically $10^{-8}$, exists purely to prevent division by zero when $r_j^{t+1}$ is very close to 0.
+In practice, $\beta_2$ is typically $0.9$ or $0.999$, so that $r_j^{t}$ only reflects the gradient magnitude over roughly the last $1/(1-\beta_2)$ steps — about $10$ or $1000$ steps, respectively — rather than over all of history, and the effective learning rate no longer decays monotonically to 0. The small constant $\epsilon$ in the denominator, typically $10^{-8}$, exists purely to prevent division by zero when $r_j^{t+1}$ is very close to 0.
 
 ---
 
