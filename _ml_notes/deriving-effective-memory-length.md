@@ -74,60 +74,29 @@ Since $0<\beta<1$, $\ln\beta$ is negative and $\tau$ is positive.
 
 ## Step 4: Approximate
 
-The exact result $\tau = -1/\ln\beta$ is not convenient:
+In practice, the logarithm is replaced by a simpler approximation for convenience:
 
-- It is hard to evaluate mentally. What is $-1/\ln 0.99$?
-- It hides how $\tau$ scales with $\beta$.
+$$\begin{equation} \tau = \frac{-1}{\ln\beta} \approx \frac{1}{1-\beta} \end{equation}$$
 
-In practice $\beta$ is close to $1$ ($0.9$, $0.99$, $0.999$), which invites an approximation. Write
+To see where this comes from, note that $\beta$ is typically close to $1$ ($0.9$, $0.99$, $0.999$). Write
 
-$$\beta = 1-\varepsilon, \qquad \varepsilon = 1-\beta \text{ small}$$
+$$\beta = 1-\varepsilon, \qquad \varepsilon = 1-\beta$$
 
 and expand the logarithm as a Taylor series:
 
-$$\begin{equation} \ln(1-\varepsilon) = -\varepsilon - \frac{\varepsilon^2}{2} - \frac{\varepsilon^3}{3} - \cdots \end{equation}$$
+$$\begin{equation} \ln\beta = \ln(1-\varepsilon) = -\varepsilon - \frac{\varepsilon^2}{2} - \frac{\varepsilon^3}{3} - \cdots \end{equation}$$
 
-Keeping only the leading term, $\ln\beta \approx -(1-\beta)$. Substituting into $\tau = -1/\ln\beta$:
+Since $\varepsilon$ is small, the $\varepsilon^2$ and higher terms are negligible, leaving $\ln\beta \approx -\varepsilon = -(1-\beta)$. Substituting into $\tau = -1/\ln\beta$:
 
 $$\begin{equation} \tau \approx \frac{1}{1-\beta} \end{equation}$$
 
-This is the claim. It also makes the scaling obvious: $\tau$ is inversely proportional to how far $\beta$ is from $1$. Shrink $1-\beta$ by a factor of 10, and the memory grows by a factor of 10.
+To check the approximation, the table below compares the exact time constant $\tau_{\text{exact}} = -1/\ln\beta$ with the approximate one $\tau_{\text{approx}} = 1/(1-\beta)$, along with the relative weight $\beta^{\tau_{\text{approx}}}$ at the approximate one. By definition, the relative weight at $\tau_{\text{exact}}$ is exactly $1/e \approx 0.3679$:
 
-### How good is the approximation?
-
-Keeping one more term of the expansion shows the size of the error:
-
-$$\tau = \frac{1}{\varepsilon + \frac{\varepsilon^2}{2} + \cdots} = \frac{1}{\varepsilon}\cdot\frac{1}{1+\frac{\varepsilon}{2}+\cdots} \approx \frac{1}{\varepsilon}\left(1-\frac{\varepsilon}{2}\right)$$
-
-$$\begin{equation} \tau \approx \frac{1}{1-\beta} - \frac{1}{2} \end{equation}$$
-
-So $1/(1-\beta)$ overestimates the exact time constant by only about half a step:
-
-| $\beta$ | Exact $-1/\ln\beta$ | Approximation $1/(1-\beta)$ | $\beta^{1/(1-\beta)}$ (vs. $1/e\approx 0.368$) |
+| $\beta$ | $\tau_{\text{exact}}$ | $\tau_{\text{approx}}$ | $\beta^{\tau_{\text{approx}}}$ |
 |---|---|---|---|
-| 0.9 | 9.49 | 10 | 0.349 |
-| 0.99 | 99.50 | 100 | 0.366 |
+| 0.9 | 9.49 | 10 | 0.3487 |
+| 0.99 | 99.50 | 100 | 0.3660 |
 | 0.999 | 999.50 | 1000 | 0.3677 |
-
-The closer $\beta$ is to $1$, the smaller the relative error. For Adam's default values, this gives memory lengths of about $10$ steps for the first moment ($\beta_1=0.9$) and about $1000$ steps for the second moment ($\beta_2=0.999$).
-
-## What the Claim Does and Doesn't Mean
-
-The claim's wording deserves a closer look, because $1/(1-\beta)$ is a *time scale*, not a cutoff.
-
-**Inputs at $\tau$ steps back are not yet negligible.** By definition, they still carry about $37\%$ of the newest input's weight. The last $\tau$ inputs together account for only about $1-\beta^{\tau} \approx 1-1/e \approx 63\%$ of the total weight. Older inputs do become negligible, but further back: the most recent $n$ inputs hold $1-\beta^n$ of the weight, so holding $95\%$ takes
-
-$$n = \frac{\ln 0.05}{\ln\beta} \approx 3\tau$$
-
-steps, which is about 28 steps when $\beta=0.9$.
-
-**It is not the same as a plain average of the last $\tau$ inputs.** A simple moving average (SMA) over $N$ inputs gives each of them weight $1/N$ and ignores everything older. Matching an EMA to an SMA by either lag (the center of mass of the weights) or noise reduction (the sum of squared weights) gives the same answer:
-
-$$\begin{equation} N = \frac{2}{1-\beta} - 1 \end{equation}$$
-
-For $\beta=0.9$, that is $N=19$, not $10$. The EMA lags the input by $\beta/(1-\beta) = 9$ steps on average, while a 10-step SMA lags by only $4.5$.
-
-So the accurate reading of the claim is: **the EMA's memory has a time scale of about $1/(1-\beta)$ steps**, meaning inputs that far back have decayed to about $1/e$ of the newest input's weight. It is a quick, reliable way to judge orders of magnitude ($\beta = 0.9, 0.99, 0.999 \to$ roughly $10, 100, 1000$ steps), not a statement that the EMA averages exactly that many inputs.
 
 ---
 
