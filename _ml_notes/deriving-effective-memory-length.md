@@ -6,21 +6,13 @@ birth: 2026-09-27
 
 ## The Claim Being Derived
 
-[A Roadmap to Gradient Descent Optimizers](roadmap-to-gradient-descent-optimizers) introduces the first moment
-
-$$\begin{equation} s_j^{t+1} = \beta_1\, s_j^{t} + (1-\beta_1)\,\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right) \end{equation}$$
-
-and the second moment
-
-$$\begin{equation} r_j^{t+1} = \beta_2\, r_j^{t} + (1-\beta_2)\left(\frac{\partial}{\partial\theta_j^{t}}J\left(\theta^{t}\right)\right)^2 \end{equation}$$
-
-Both are built from the same shape of recurrence — an exponential moving average (EMA):
+[A Roadmap to Gradient Descent Optimizers](roadmap-to-gradient-descent-optimizers) introduces the first moment and the second moment. Both are built from the same shape of recurrence — an exponential moving average (EMA):
 
 $$\begin{equation} y^{t+1} = \beta\, y^{t} + (1-\beta)\, x^{t}, \qquad y^{0}=0 \end{equation}$$
 
-This recurrence acts like a weighted average over roughly the last $1/(1-\beta)$ steps — meaning contributions older than that have decayed enough to be practically negligible, even though every past value technically still appears in the sum.
+This recurrence acts like a weighted average over roughly the last $1/(1-\beta)$ steps.
 
-Here's a quick example. Taking $\beta=0.9$ gives $1/(1-\beta)=10$, meaning $y^{t+1}$ is affected mainly by the last 10 iterations.
+> For example, $\beta=0.9$ gives $1/(1-\beta)=10$, so we can say that $y^{t+1}$ is shaped mainly by the last 10 iterations. Every past value technically still appears in the sum, but older contributions have decayed enough to be practically negligible.
 
 This note derives that claim from scratch.
 
