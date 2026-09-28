@@ -58,43 +58,21 @@ The common factor $(1-\beta)$ cancels, and $\beta^0=1$. An input $k$ steps back 
 
 ---
 
-## Step 3: Ask the Right Question
+## Step 3: Define the Time Constant
 
-The relative weight $\beta^k$ never reaches zero, so "how many steps does the EMA remember?" has no sharp answer. A precise version of the question is:
-
-> How many steps back does it take for the relative weight to drop to $1/e$?
-
-This number of steps is called the **time constant**, written $\tau$. That is its definition: the number of steps an exponential decay takes to fall to $1/e$ of its starting value.
-
-### Why $1/e$?
-
-Any fraction $p$ would work. Solving $\beta^k = p$ gives
+To find how many steps back it takes for the relative weight to drop to a specific threshold $p$, set $\beta^k = p$ and take the logarithm of both sides:
 
 $$\begin{equation} k = \frac{\ln(1/p)}{-\ln\beta} \end{equation}$$
 
-so every choice of $p$ gives the same dependence on $\beta$, just scaled by the constant $\ln(1/p)$. Choosing $p=1/2$ gives the familiar *half-life*, with constant $\ln 2 \approx 0.693$. Choosing $p=1/e$ is the one choice that makes the constant exactly $1$, which is why it gives the cleanest formula and is the standard convention in physics, engineering, and signal processing.
-
----
-
-## Step 4: Solve for $\tau$ Exactly
-
-Set the relative weight equal to $1/e$ and take the logarithm of both sides:
-
-$$\beta^{\tau} = \frac{1}{e} \quad\Longrightarrow\quad \tau\ln\beta = -1$$
+Choosing $p=1/e$ makes the numerator $\ln(1/p)$ exactly $1$, which leaves the cleanest formula. This is the standard convention in physics, engineering, and signal processing, where the resulting number of steps is called the **time constant**, written $\tau$:
 
 $$\begin{equation} \tau = \frac{-1}{\ln\beta} \end{equation}$$
 
-This is the exact time constant. Since $0<\beta<1$, $\ln\beta$ is negative and $\tau$ is positive.
-
-Another way to see that this is *the* natural length of the decay: rewrite $\beta^k$ as a power of $e$. Because $\beta = e^{\ln\beta}$,
-
-$$\begin{equation} \beta^{k} = e^{k\ln\beta} = e^{-k/\tau} \end{equation}$$
-
-which is the standard form of exponential decay, with $\tau$ appearing as its only parameter. Plugging in $k=\tau$ gives $e^{-1}$, consistent with the definition.
+Since $0<\beta<1$, $\ln\beta$ is negative and $\tau$ is positive.
 
 ---
 
-## Step 5: Approximate
+## Step 4: Approximate
 
 The exact result $\tau = -1/\ln\beta$ is not convenient:
 
@@ -157,6 +135,5 @@ So the accurate reading of the claim is: **the EMA's memory has a time scale of 
 
 1. Unrolling the recurrence shows that an input $k$ steps back has weight $(1-\beta)\beta^k$.
 2. Relative to the newest input, that weight is $\beta^k$.
-3. The time constant $\tau$ is defined as the number of steps for $\beta^k$ to fall to $1/e$.
-4. Solving $\beta^\tau = 1/e$ gives the exact result $\tau = -1/\ln\beta$.
-5. For $\beta$ close to $1$, $\ln\beta \approx -(1-\beta)$, so $\tau \approx 1/(1-\beta)$, accurate to about half a step.
+3. The number of steps for $\beta^k$ to fall to a threshold $p$ is $\ln(1/p)/(-\ln\beta)$. Choosing $p=1/e$ makes the numerator $\ln(1/p)$ exactly $1$ and defines the time constant, with exact value $\tau = -1/\ln\beta$.
+4. For $\beta$ close to $1$, $\ln\beta \approx -(1-\beta)$, so $\tau \approx 1/(1-\beta)$, accurate to about half a step.
