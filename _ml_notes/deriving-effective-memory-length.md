@@ -16,11 +16,11 @@ $$\begin{equation} r_j^{t+1} = \beta_2\, r_j^{t} + (1-\beta_2)\left(\frac{\parti
 
 Both are built from the same shape of recurrence — an exponential moving average (EMA):
 
-$$\begin{equation} x^{t+1} = \beta\, x^{t} + (1-\beta)\, y^{t}, \qquad x^{0}=0 \end{equation}$$
+$$\begin{equation} y^{t+1} = \beta\, y^{t} + (1-\beta)\, x^{t}, \qquad y^{0}=0 \end{equation}$$
 
 This recurrence acts like a weighted average over roughly the last $1/(1-\beta)$ steps — meaning contributions older than that have decayed enough to be practically negligible, even though every past value technically still appears in the sum.
 
-Here's a quick example. Taking $\beta=0.9$ gives $1/(1-\beta)=10$, meaning $x^{t+1}$ is affected mainly by the last 10 iterations.
+Here's a quick example. Taking $\beta=0.9$ gives $1/(1-\beta)=10$, meaning $y^{t+1}$ is affected mainly by the last 10 iterations.
 
 This note derives that claim from scratch.
 
@@ -28,26 +28,26 @@ This note derives that claim from scratch.
 
 ## Step 1: Unroll the Recurrence
 
-To see how much each past input $y$ contributes to $x^{t+1}$, substitute the recurrence into itself, one step at a time:
+To see how much each past input $x$ contributes to $y^{t+1}$, substitute the recurrence into itself, one step at a time:
 
 $$\begin{aligned}
-x^{t+1} &= (1-\beta)\,y^{t} + \beta\,x^{t} \\
-&= (1-\beta)\,y^{t} + \beta\big[(1-\beta)\,y^{t-1} + \beta\,x^{t-1}\big] \\
-&= (1-\beta)\,y^{t} + \beta(1-\beta)\,y^{t-1} + \beta^2\,x^{t-1} \\
-&= (1-\beta)\,y^{t} + \beta(1-\beta)\,y^{t-1} + \beta^2(1-\beta)\,y^{t-2} + \beta^3\,x^{t-2}
+y^{t+1} &= (1-\beta)\,x^{t} + \beta\,y^{t} \\
+&= (1-\beta)\,x^{t} + \beta\big[(1-\beta)\,x^{t-1} + \beta\,y^{t-1}\big] \\
+&= (1-\beta)\,x^{t} + \beta(1-\beta)\,x^{t-1} + \beta^2\,y^{t-1} \\
+&= (1-\beta)\,x^{t} + \beta(1-\beta)\,x^{t-1} + \beta^2(1-\beta)\,x^{t-2} + \beta^3\,y^{t-2}
 \end{aligned}$$
 
-Each substitution pushes the leftover $x$ term one step further back and multiplies it by another $\beta$. Continuing all the way down to $x^0$:
+Each substitution pushes the leftover $y$ term one step further back and multiplies it by another $\beta$. Continuing all the way down to $y^0$:
 
-$$\begin{equation} x^{t+1} = (1-\beta)\sum_{k=0}^{t}\beta^{k}\,y^{t-k} \;+\; \beta^{t+1}x^{0} \end{equation}$$
+$$\begin{equation} y^{t+1} = (1-\beta)\sum_{k=0}^{t}\beta^{k}\,x^{t-k} \;+\; \beta^{t+1}y^{0} \end{equation}$$
 
-Since $x^0=0$, the last term vanishes, leaving a weighted sum of all past inputs:
+Since $y^0=0$, the last term vanishes, leaving a weighted sum of all past inputs:
 
-$$\begin{equation} x^{t+1} = \sum_{k=0}^{t} w_k\, y^{t-k}, \qquad w_k = (1-\beta)\,\beta^{k} \end{equation}$$
+$$\begin{equation} y^{t+1} = \sum_{k=0}^{t} w_k\, x^{t-k}, \qquad w_k = (1-\beta)\,\beta^{k} \end{equation}$$
 
-Here $k$ counts how many steps back an input lies: $k=0$ is the newest input $y^t$, $k=1$ is $y^{t-1}$, and so on. Every past input is still in the sum, but each step further back costs one more factor of $\beta$.
+Here $k$ counts how many steps back an input lies: $k=0$ is the newest input $x^t$, $k=1$ is $x^{t-1}$, and so on. Every past input is still in the sum, but each step further back costs one more factor of $\beta$.
 
-> The weights sum to $(1-\beta)\sum_{k=0}^{t}\beta^k = 1-\beta^{t+1}$, which approaches $1$ as $t$ grows. The shortfall at small $t$ comes from starting at $x^0=0$; it is the reason Adam applies bias correction, but it doesn't affect the memory length derived below.
+> The weights sum to $(1-\beta)\sum_{k=0}^{t}\beta^k = 1-\beta^{t+1}$, which approaches $1$ as $t$ grows. The shortfall at small $t$ comes from starting at $y^0=0$; it is the reason Adam applies bias correction, but it doesn't affect the memory length derived below.
 
 ---
 
@@ -142,8 +142,6 @@ So $1/(1-\beta)$ overestimates the exact time constant by only about half a step
 | 0.999 | 999.50 | 1000 | 0.3677 |
 
 The closer $\beta$ is to $1$, the smaller the relative error. For Adam's default values, this gives memory lengths of about $10$ steps for the first moment ($\beta_1=0.9$) and about $1000$ steps for the second moment ($\beta_2=0.999$).
-
----
 
 ## What the Claim Does and Doesn't Mean
 
