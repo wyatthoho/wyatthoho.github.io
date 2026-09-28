@@ -94,15 +94,15 @@ To check the approximation, the table below compares the exact time constant $\t
 
 | $\beta$ | $\tau_{\text{exact}}$ | $\tau_{\text{approx}}$ | $\beta^{\tau_{\text{approx}}}$ |
 |---|---|---|---|
+| 0.5 | 1.44 | 2 | 0.2500 |
 | 0.9 | 9.49 | 10 | 0.3487 |
 | 0.99 | 99.50 | 100 | 0.3660 |
 | 0.999 | 999.50 | 1000 | 0.3677 |
+
+When $\beta$ is close to $1$, $\beta^{\tau_{\text{approx}}}$ is nearly the exact value $0.3679$. When $\beta$ is far from $1$, it drifts noticeably away.
 
 ---
 
 ## Summary
 
-1. Unrolling the recurrence shows that an input $k$ steps back has weight $(1-\beta)\beta^k$.
-2. Relative to the newest input, that weight is $\beta^k$.
-3. The number of steps for $\beta^k$ to fall to a threshold $p$ is $\ln(1/p)/(-\ln\beta)$. Choosing $p=1/e$ makes the numerator $\ln(1/p)$ exactly $1$ and defines the time constant, with exact value $\tau = -1/\ln\beta$.
-4. For $\beta$ close to $1$, $\ln\beta \approx -(1-\beta)$, so $\tau \approx 1/(1-\beta)$, accurate to about half a step.
+Every past input contributes to the current EMA value, but an input $k$ steps back carries only relative weight $\beta^k$. The time constant $\tau = -1/\ln\beta$ is the number of steps for that weight to fall to $1/e$. Since $\beta$ is close to $1$ in practice, $\tau$ is approximated by $1/(1-\beta)$, which overshoots by only about half a step. This is the precise sense in which an EMA acts like an average over roughly the last $1/(1-\beta)$ steps.
