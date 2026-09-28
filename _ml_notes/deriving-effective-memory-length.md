@@ -43,18 +43,18 @@ Here $k$ counts how many steps back an input lies. Every past input is still in 
 
 ## Step 2: Compare Each Weight to the Newest One
 
-What matters for "memory" is how fast the weights shrink, not their absolute size. So compare each weight to the newest one, $w_0$:
+What matters for memory is how fast the weights shrink, so compare each to the newest one, $w_0$:
 
 $$\begin{equation} \frac{w_k}{w_0} = \frac{(1-\beta)\,\beta^{k}}{(1-\beta)\,\beta^{0}} = \beta^{k} \end{equation}$$
 
 The common factor $(1-\beta)$ cancels, and $\beta^0=1$. An input $k$ steps back therefore carries $\beta^k$ times the weight of the newest input. With $\beta=0.9$:
 
-| Steps back $k$ | Weight $w_k$ | Relative weight $\beta^k$ |
-|---|---|---|
-| 0 | 0.1 | 1 |
-| 1 | 0.09 | 0.9 |
-| 2 | 0.081 | 0.81 |
-| 10 | ≈ 0.035 | ≈ 0.35 |
+| Steps back $k$ | Relative weight $\beta^k$ |
+|:---:|---:|
+| 0 | 1 |
+| 1 | 0.9 |
+| 2 | 0.81 |
+| 10 | ≈ 0.35 |
 
 ---
 
