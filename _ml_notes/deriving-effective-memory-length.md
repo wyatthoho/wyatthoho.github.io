@@ -37,9 +37,7 @@ Since $y^0=0$, the last term vanishes, leaving a weighted sum of all past inputs
 
 $$\begin{equation} y^{t+1} = \sum_{k=0}^{t} w_k\, x^{t-k}, \qquad w_k = (1-\beta)\,\beta^{k} \end{equation}$$
 
-Here $k$ counts how many steps back an input lies: $k=0$ is the newest input $x^t$, $k=1$ is $x^{t-1}$, and so on. Every past input is still in the sum, but each step further back costs one more factor of $\beta$.
-
-> The weights sum to $(1-\beta)\sum_{k=0}^{t}\beta^k = 1-\beta^{t+1}$, which approaches $1$ as $t$ grows. The shortfall at small $t$ comes from starting at $y^0=0$; it is the reason Adam applies bias correction, but it doesn't affect the memory length derived below.
+Here $k$ counts how many steps back an input lies. Every past input is still in the sum, but each step further back costs one more factor of $\beta$.
 
 ---
 
@@ -98,7 +96,7 @@ which is the standard form of exponential decay, with $\tau$ appearing as its on
 
 ## Step 5: Approximate
 
-Equation (9) is exact but not convenient:
+The exact result $\tau = -1/\ln\beta$ is not convenient:
 
 - It is hard to evaluate mentally. What is $-1/\ln 0.99$?
 - It hides how $\tau$ scales with $\beta$.
@@ -111,7 +109,7 @@ and expand the logarithm as a Taylor series:
 
 $$\begin{equation} \ln(1-\varepsilon) = -\varepsilon - \frac{\varepsilon^2}{2} - \frac{\varepsilon^3}{3} - \cdots \end{equation}$$
 
-Keeping only the leading term, $\ln\beta \approx -(1-\beta)$. Substituting into equation (9):
+Keeping only the leading term, $\ln\beta \approx -(1-\beta)$. Substituting into $\tau = -1/\ln\beta$:
 
 $$\begin{equation} \tau \approx \frac{1}{1-\beta} \end{equation}$$
 
