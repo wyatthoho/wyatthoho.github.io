@@ -49,7 +49,7 @@ set label           [hwtk::label $frame_container.label -text "Entities:"]
 The control itself is assembled from these widgets:
 
 | Widget | Role |
-| --- | --- |
+| :--- | :--- |
 | `hmtk::entityselector` | The selector itself. Owns the selection logic and the graphics-area interaction. |
 | `hwctx::guidebar` | The guide bar that visually hosts the selector. |
 | `hwtk::button` | A *dummy button* that shows the current count, e.g. `12 Elements`. |
@@ -281,7 +281,7 @@ and press OK or Cancel.
 Everything above relies on a handful of methods:
 
 | Method | Purpose |
-| --- | --- |
+| :--- | :--- |
 | `SetActive` / `SetInactive` | Start / stop the selection session. |
 | `ExecSelectionCommand GetSelectionIds` | Get the ids currently selected. |
 | `ExecSelectionCommand Clear` | Clear the selection. |
