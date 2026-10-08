@@ -4,7 +4,7 @@ name: HyperMesh Extension - Embedding an Entity Selector in a Dialog
 birth: 2026-10-07
 ---
 
-HyperMesh has a familiar control that lets the user select entities of a specific type, such as components, elements, or surfaces. The screenshot below shows it in the native Pressures panel.
+HyperMesh has a familiar control called **entity selector** that lets the user select entities of a specific type, such as components, elements, or surfaces. The screenshot below shows it in the native Pressures panel.
 
 ![The native Apply Pressures panel in HyperMesh, showing the entity selector](../assets/images/native-hm-selector.png)
 
@@ -16,22 +16,18 @@ Unlike basic widgets such as `hwtk::button` and `hwtk::combobox`, this control h
 
 ## Step 1: Create the Widgets
 
-You can paste the code blocks of this article, in order, into the Tcl terminal of HyperMesh. 
-After the last step, the dialog appears.
-
-First, a namespace to hold the selection that is saved while the user is selecting (see Step 3), 
-and the dialog with the containers for the control:
+First, a namespace to hold the selection and the dialog with the containers for the control:
 
 ```tcl
-namespace eval ::entityselector_test {
-    variable saved_ids {}
+namespace eval ::demoselector {
+    variable selected_ids {}
 }
 
 catch { destroy .dialog }
 
 set dialog          [hwtk::dialog .dialog -title "Test"]
-set parent          [$dialog recess]
-set frame_container [hwtk::frame $parent.frame_container]
+set recess          [$dialog recess]
+set frame_container [hwtk::frame $recess.frame_container]
 set label           [hwtk::label $frame_container.label -text "Entities:"]
 ```
 
@@ -45,7 +41,7 @@ The control itself is assembled from these widgets:
 | `hwtk::buttonbar` | My own OK / Cancel / Reset / Advanced icons, replacing the built-in ones. |
 
 Besides these, a few plain frames are needed to group them. 
-Note that `frame_buttonbar` is created inside the **toplevel** (`[winfo toplevel $parent]`), 
+Note that `frame_buttonbar` is created inside the **toplevel** (`[winfo toplevel $recess]`), 
 not inside `frame_cell`. 
 That allows it to be placed over the cell and raised above its siblings later.
 
@@ -54,7 +50,7 @@ set frame_cell      [hwtk::frame $frame_container.frame_cell]
 set guidebar        [hwctx::guidebar $frame_cell.guidebar -fillet 2]
 set frame_button    [hwtk::frame $frame_cell.frame_button]
 set button          [hwtk::button $frame_button.button]
-set frame_buttonbar [hwtk::frame [winfo toplevel $parent].frame_buttonbar]
+set frame_buttonbar [hwtk::frame [winfo toplevel $recess].frame_buttonbar]
 set entityselector  [hmtk::entityselector $frame_cell.entityselector \
     -guidebar           $guidebar \
     -types              "Elements Nodes" \
@@ -69,8 +65,8 @@ set entityselector  [hmtk::entityselector $frame_cell.entityselector \
     -syncwithbrowser    false \
     -restorelastentity  0 \
     -useeventhandler    true \
-    -acceptcommand      [list ::entityselector_test::on_accept $frame_cell.entityselector $frame_buttonbar $button $frame_button] \
-    -cancelcommand      [list ::entityselector_test::on_cancel $frame_cell.entityselector $frame_buttonbar $button $frame_button]
+    -acceptcommand      [list ::demoselector::on_accept $frame_cell.entityselector $frame_buttonbar $button $frame_button] \
+    -cancelcommand      [list ::demoselector::on_cancel $frame_cell.entityselector $frame_buttonbar $button $frame_button]
 ]
 set buttonbar       [hwtk::buttonbar $frame_buttonbar.buttonbar -showseparator 0]
 ```
@@ -113,8 +109,8 @@ grid $guidebar        -row 0 -column 0 -sticky ew
 grid $button          -row 0 -column 0 -sticky ew
 grid $buttonbar       -row 0 -column 0
 
-grid rowconfigure    $parent 0 -weight 1
-grid columnconfigure $parent 0 -weight 1
+grid rowconfigure    $recess 0 -weight 1
+grid columnconfigure $recess 0 -weight 1
 grid columnconfigure $frame_container 1 -weight 1
 grid columnconfigure $frame_cell 0 -weight 1
 grid columnconfigure $frame_button 0 -weight 1
@@ -144,7 +140,7 @@ The helper below grids the button frame into the cell and updates the label.
 It is called once at startup (see Step 5), and again after Accept or Cancel.
 
 ```tcl
-proc ::entityselector_test::_update_dummy_button {frame_button button entitytype {count 0}} {
+proc ::demoselector::_update_dummy_button {frame_button button entitytype {count 0}} {
     grid $frame_button -row 0 -column 0 -sticky nsew
     $button configure -text "$count $entitytype"
 }
@@ -154,13 +150,13 @@ Clicking the dummy button starts a selection session.
 
 ```tcl
 $button configure \
-    -command [list ::entityselector_test::activate_selector $frame_cell $frame_button $frame_buttonbar $entityselector]
+    -command [list ::demoselector::activate_selector $frame_cell $frame_button $frame_buttonbar $entityselector]
 ```
 
 ```tcl
-proc ::entityselector_test::activate_selector {frame_cell frame_button frame_buttonbar entityselector} {
-    variable saved_ids
-    set saved_ids [$entityselector ExecSelectionCommand GetSelectionIds]
+proc ::demoselector::activate_selector {frame_cell frame_button frame_buttonbar entityselector} {
+    variable selected_ids
+    set selected_ids [$entityselector ExecSelectionCommand GetSelectionIds]
 
     grid forget $frame_button
     place $frame_buttonbar -in $frame_cell -anchor ne \
@@ -171,7 +167,7 @@ proc ::entityselector_test::activate_selector {frame_cell frame_button frame_but
 }
 ```
 
-1. Save the current selection to `saved_ids`, so that Cancel can restore it later.
+1. Save the current selection to `selected_ids`, so that Cancel can restore it later.
 2. Hide the dummy button with `grid forget`, revealing the guide bar underneath.
 3. Float the button bar at the corner of the cell and raise it.
 4. Activate the selector with `SetActive`.
@@ -196,11 +192,11 @@ $buttonbar add a_reset \
 $buttonbar add a_accept \
     -image "toolbarActionOKStrip-16.png" -indicator hide \
     -help "Ok" \
-    -command [list ::entityselector_test::on_accept $entityselector $frame_buttonbar $button $frame_button]
+    -command [list ::demoselector::on_accept $entityselector $frame_buttonbar $button $frame_button]
 $buttonbar add a_cancel \
     -image "toolbarActionCancelStrip-16.png" -indicator hide \
     -help "Cancel" \
-    -command [list ::entityselector_test::on_cancel $entityselector $frame_buttonbar $button $frame_button]
+    -command [list ::demoselector::on_cancel $entityselector $frame_buttonbar $button $frame_button]
 ```
 
 Advanced Selection and Reset need no extra code. 
@@ -210,12 +206,12 @@ so they call our own procedures.
 ### Accept
 
 ```tcl
-proc ::entityselector_test::on_accept {entityselector frame_buttonbar button frame_button} {
+proc ::demoselector::on_accept {entityselector frame_buttonbar button frame_button} {
     set ids        [$entityselector ExecSelectionCommand GetSelectionIds]
     set entitytype [$entityselector GetEntityType]
     $entityselector SetInactive
     place forget $frame_buttonbar
-    ::entityselector_test::_update_dummy_button $frame_button $button $entitytype [llength $ids]
+    ::demoselector::_update_dummy_button $frame_button $button $entitytype [llength $ids]
     raise $frame_button
 }
 ```
@@ -226,16 +222,16 @@ and bring the dummy button back with the new count as its label.
 ### Cancel
 
 ```tcl
-proc ::entityselector_test::on_cancel {entityselector frame_buttonbar button frame_button} {
-    variable saved_ids
+proc ::demoselector::on_cancel {entityselector frame_buttonbar button frame_button} {
+    variable selected_ids
     $entityselector ExecSelectionCommand Clear
-    if {[llength $saved_ids]} {
-        $entityselector ExecSelectionCommand SelectByAdvanced "by id" $saved_ids
+    if {[llength $selected_ids]} {
+        $entityselector ExecSelectionCommand SelectByAdvanced "by id" $selected_ids
     }
     set entitytype [$entityselector GetEntityType]
     $entityselector SetInactive
     place forget $frame_buttonbar
-    ::entityselector_test::_update_dummy_button $frame_button $button $entitytype [llength $saved_ids]
+    ::demoselector::_update_dummy_button $frame_button $button $entitytype [llength $selected_ids]
     raise $frame_button
 }
 ```
@@ -243,7 +239,7 @@ proc ::entityselector_test::on_cancel {entityselector frame_buttonbar button fra
 The selector has no built-in "undo" for a selection session. 
 So Cancel clears whatever was picked and re-selects the ids saved at the start, 
 using `SelectByAdvanced "by id"`. 
-The rest is identical to Accept, except that the count comes from `saved_ids`.
+The rest is identical to Accept, except that the count comes from `selected_ids`.
 
 ---
 
@@ -252,7 +248,7 @@ The rest is identical to Accept, except that the count comes from `saved_ids`.
 Initialize the dummy button, then post the dialog:
 
 ```tcl
-::entityselector_test::_update_dummy_button $frame_button $button "Elements"
+::demoselector::_update_dummy_button $frame_button $button "Elements"
 
 $dialog post
 ```
