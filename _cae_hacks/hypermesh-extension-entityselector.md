@@ -16,42 +16,35 @@ Unlike basic widgets such as `hwtk::button` and `hwtk::combobox`, this control h
 
 ## Step 1: Create the Widgets
 
-First, a namespace to hold the selection and the dialog with the containers for the control:
+First, create a namespace to hold the selection for future usage
 
 ```tcl
-namespace eval ::demoselector {
+namespace eval ::demo_selector {
     variable selected_ids {}
 }
-
-catch { destroy .dialog }
-
-set dialog          [hwtk::dialog .dialog -title "Test"]
-set recess          [$dialog recess]
-set frame_container [hwtk::frame $recess.frame_container]
-set label           [hwtk::label $frame_container.label -text "Entities:"]
 ```
 
 The control itself is assembled from these widgets:
 
 | Widget | Role |
 | :--- | :--- |
-| `hmtk::entityselector` | The selector itself. Owns the selection logic and the graphics-area interaction. |
+| `hmtk::entityselector` | The selector which owns the selection logic. |
 | `hwctx::guidebar` | The guide bar that visually hosts the selector. |
-| `hwtk::button` | A *dummy button* that shows the current count, e.g. `12 Elements`. |
-| `hwtk::buttonbar` | My own OK / Cancel / Reset / Advanced icons, replacing the built-in ones. |
+| `hwtk::button` | A dummy button that shows the current entity type and count. |
+| `hwtk::buttonbar` | Advanced / Reset / Apply / OK / Cancel |
 
-Besides these, a few plain frames are needed to group them. 
-Note that `frame_buttonbar` is created inside the **toplevel** (`[winfo toplevel $recess]`), 
-not inside `frame_cell`. 
-That allows it to be placed over the cell and raised above its siblings later.
+The widget creation, configuration, and layout code below all goes into one procedure, 
+`::demo_selector::launch` (see Step 5). 
+The helper and callback procedures are defined separately.
 
 ```tcl
-set frame_cell      [hwtk::frame $frame_container.frame_cell]
-set guidebar        [hwctx::guidebar $frame_cell.guidebar -fillet 2]
-set frame_button    [hwtk::frame $frame_cell.frame_button]
-set button          [hwtk::button $frame_button.button]
-set frame_buttonbar [hwtk::frame [winfo toplevel $recess].frame_buttonbar]
-set entityselector  [hmtk::entityselector $frame_cell.entityselector \
+set dialog         [hwtk::dialog .dialog -title "Demo Selector"]
+set recess         [$dialog recess]
+set frame_cell     [hwtk::frame $recess.frame_cell]
+set guidebar       [hwctx::guidebar $frame_cell.guidebar -fillet 2]
+set button         [hwtk::button $frame_cell.button]
+set buttonbar      [hwtk::buttonbar [winfo toplevel $recess].buttonbar -showseparator 0]
+set entityselector [hmtk::entityselector $frame_cell.entityselector \
     -guidebar           $guidebar \
     -types              "Elements Nodes" \
     -defaultentity      "Elements" \
@@ -65,11 +58,13 @@ set entityselector  [hmtk::entityselector $frame_cell.entityselector \
     -syncwithbrowser    false \
     -restorelastentity  0 \
     -useeventhandler    true \
-    -acceptcommand      [list ::demoselector::on_accept $frame_cell.entityselector $frame_buttonbar $button $frame_button] \
-    -cancelcommand      [list ::demoselector::on_cancel $frame_cell.entityselector $frame_buttonbar $button $frame_button]
+    -acceptcommand      [list ::demo_selector::on_accept $frame_cell.entityselector $buttonbar $button] \
+    -cancelcommand      [list ::demo_selector::on_cancel $frame_cell.entityselector $buttonbar $button]
 ]
-set buttonbar       [hwtk::buttonbar $frame_buttonbar.buttonbar -showseparator 0]
 ```
+
+The button bar is created directly on the dialog's toplevel window rather than inside `frame_cell`, 
+so it can later float over the cell with `place` (see Step 3).
 
 A few options of the selector deserve explanation:
 
@@ -102,46 +97,37 @@ so the guide bar is what actually shows up on screen.
 Here is the complete layout code:
 
 ```tcl
-grid $label           -row 0 -column 0 -sticky w    -padx 4 -pady 4
-grid $frame_container -row 0 -column 0 -sticky nsew -padx 4 -pady 4
-grid $frame_cell      -row 0 -column 1 -sticky ew   -padx 4 -pady 4
-grid $guidebar        -row 0 -column 0 -sticky ew
-grid $button          -row 0 -column 0 -sticky ew
-grid $buttonbar       -row 0 -column 0
+grid $frame_cell -row 0 -column 0 -sticky ew -padx 4 -pady 4
+grid $guidebar   -row 0 -column 0 -sticky ew
 
 grid rowconfigure    $recess 0 -weight 1
 grid columnconfigure $recess 0 -weight 1
-grid columnconfigure $frame_container 1 -weight 1
 grid columnconfigure $frame_cell 0 -weight 1
-grid columnconfigure $frame_button 0 -weight 1
 ```
 
-The first three lines are ordinary dialog layout: 
-the label and the cell sit side by side inside `frame_container`. 
+Gridding `frame_cell` into the dialog is ordinary layout. 
 The interesting part is what happens inside `frame_cell`:
 
 - `$guidebar` is gridded at row 0, column 0.
-- `$frame_button`, which holds the dummy button, is gridded into the same cell 
-  by `_update_dummy_button` (see Step 3). 
+- `$button` is gridded into the same cell by `_update_dummy_button` (see Step 3). 
   Because it is gridded later, it covers the guide bar. 
   At rest, the user only sees the dummy button.
-- `$buttonbar` is gridded only inside its own frame, `frame_buttonbar`. 
-  That frame is **not** laid out in the dialog yet. 
+- `$buttonbar` is **not** laid out here at all. 
   It is placed over the cell only when the user starts selecting (see Step 3).
-- The `-weight 1` settings on `$frame_cell` and `$frame_button` 
-  let the guide bar and the dummy button stretch to the full width of the cell.
+- The `-weight 1` setting on `$frame_cell` 
+  lets the guide bar and the dummy button stretch to the full width of the cell.
 
 ---
 
 ## Step 3: Configure the Dummy Button
 
 The dummy button's label shows the entity type and the count. 
-The helper below grids the button frame into the cell and updates the label. 
+The helper below grids the button into the cell and updates the label. 
 It is called once at startup (see Step 5), and again after Accept or Cancel.
 
 ```tcl
-proc ::demoselector::_update_dummy_button {frame_button button entitytype {count 0}} {
-    grid $frame_button -row 0 -column 0 -sticky nsew
+proc ::demo_selector::_update_dummy_button {button entitytype {count 0}} {
+    grid $button -row 0 -column 0 -sticky nsew
     $button configure -text "$count $entitytype"
 }
 ```
@@ -150,18 +136,19 @@ Clicking the dummy button starts a selection session.
 
 ```tcl
 $button configure \
-    -command [list ::demoselector::activate_selector $frame_cell $frame_button $frame_buttonbar $entityselector]
+    -command [list ::demo_selector::activate_selector $frame_cell $button $buttonbar $entityselector]
 ```
 
 ```tcl
-proc ::demoselector::activate_selector {frame_cell frame_button frame_buttonbar entityselector} {
+proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselector} {
     variable selected_ids
     set selected_ids [$entityselector ExecSelectionCommand GetSelectionIds]
+    set cell_width  [winfo width $frame_cell]
+    set cell_height [winfo height $frame_cell]
 
-    grid forget $frame_button
-    place $frame_buttonbar -in $frame_cell -anchor ne \
-        -x [winfo width $frame_cell] -y [winfo height $frame_cell]
-    raise $frame_buttonbar
+    grid forget $button
+    place $buttonbar -in $frame_cell -anchor ne -x $cell_width -y $cell_height
+    raise $buttonbar
     $entityselector SetActive
     $entityselector UpdateButtonWidth
 }
@@ -182,21 +169,28 @@ so the result looks identical to the native panels.
 
 ```tcl
 $buttonbar add a_advance \
-    -image "toolbarMoreOptionsStrip-16.png" -indicator hide \
+    -image "toolbarMoreOptionsStrip-16.png" \
+    -indicator hide \
     -help "Advanced Selection" \
     -command [list $entityselector OpenAdvancedSelection]
+
 $buttonbar add a_reset \
-    -image "toolbarActionResetStrip-16.png" -indicator hide \
+    -image "toolbarActionResetStrip-16.png" \
+    -indicator hide \
     -help "Reset" \
     -command [list $entityselector ExecSelectionCommand Clear]
+
 $buttonbar add a_accept \
-    -image "toolbarActionOKStrip-16.png" -indicator hide \
+    -image "toolbarActionOKStrip-16.png" \
+    -indicator hide \
     -help "Ok" \
-    -command [list ::demoselector::on_accept $entityselector $frame_buttonbar $button $frame_button]
+    -command [list ::demo_selector::on_accept $entityselector $buttonbar $button]
+
 $buttonbar add a_cancel \
-    -image "toolbarActionCancelStrip-16.png" -indicator hide \
+    -image "toolbarActionCancelStrip-16.png" \
+    -indicator hide \
     -help "Cancel" \
-    -command [list ::demoselector::on_cancel $entityselector $frame_buttonbar $button $frame_button]
+    -command [list ::demo_selector::on_cancel $entityselector $buttonbar $button]
 ```
 
 Advanced Selection and Reset need no extra code. 
@@ -206,13 +200,13 @@ so they call our own procedures.
 ### Accept
 
 ```tcl
-proc ::demoselector::on_accept {entityselector frame_buttonbar button frame_button} {
+proc ::demo_selector::on_accept {entityselector buttonbar button} {
     set ids        [$entityselector ExecSelectionCommand GetSelectionIds]
     set entitytype [$entityselector GetEntityType]
     $entityselector SetInactive
-    place forget $frame_buttonbar
-    ::demoselector::_update_dummy_button $frame_button $button $entitytype [llength $ids]
-    raise $frame_button
+    place forget $buttonbar
+    ::demo_selector::_update_dummy_button $button $entitytype [llength $ids]
+    raise $button
 }
 ```
 
@@ -222,7 +216,7 @@ and bring the dummy button back with the new count as its label.
 ### Cancel
 
 ```tcl
-proc ::demoselector::on_cancel {entityselector frame_buttonbar button frame_button} {
+proc ::demo_selector::on_cancel {entityselector buttonbar button} {
     variable selected_ids
     $entityselector ExecSelectionCommand Clear
     if {[llength $selected_ids]} {
@@ -230,9 +224,9 @@ proc ::demoselector::on_cancel {entityselector frame_buttonbar button frame_butt
     }
     set entitytype [$entityselector GetEntityType]
     $entityselector SetInactive
-    place forget $frame_buttonbar
-    ::demoselector::_update_dummy_button $frame_button $button $entitytype [llength $selected_ids]
-    raise $frame_button
+    place forget $buttonbar
+    ::demo_selector::_update_dummy_button $button $entitytype [llength $selected_ids]
+    raise $button
 }
 ```
 
@@ -245,16 +239,31 @@ The rest is identical to Accept, except that the count comes from `selected_ids`
 
 ## Step 5: Show the Dialog
 
-Initialize the dummy button, then post the dialog:
+At the end of `::demo_selector::launch`, initialize the dummy button, then post the dialog:
 
 ```tcl
-::demoselector::_update_dummy_button $frame_button $button "Elements"
+::demo_selector::_update_dummy_button $button "Elements"
 
 $dialog post
 ```
 
-The dialog now shows the label `Entities:` and a button `0 Elements`. 
-Click the button, pick some elements in the graphics area, 
+Putting it together, `launch` has this shape:
+
+```tcl
+proc ::demo_selector::launch {} {
+    catch { destroy .dialog }
+
+    # ---- create ----             (Step 1)
+    # ---- configure commands ---- (Steps 3 and 4)
+    # ---- layout ----             (Step 2)
+
+    ::demo_selector::_update_dummy_button $button "Elements"
+
+    $dialog post
+}
+```
+
+Run `::demo_selector::launch`, click the button, pick some elements in the graphics area, 
 and press OK or Cancel.
 
 ![The test dialog showing the Entities label and the dummy selector button](../assets/images/entityselector-test.png)
