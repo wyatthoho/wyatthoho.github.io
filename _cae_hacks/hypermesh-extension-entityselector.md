@@ -4,24 +4,13 @@ name: HyperMesh Extension - Embedding an Entity Selector in a Dialog
 birth: 2026-10-07
 ---
 
-Native HyperMesh panels have a familiar pattern: 
-a button shows something like `12 Elements`. 
-Click it, and the button turns into a selector with a few small icons 
-(advanced selection, reset, OK, cancel). 
-Confirm or cancel, and it collapses back into the button.
+HyperMesh has a familiar control that lets the user select entities of a specific type, such as components, elements, or surfaces. The screenshot below shows it in the native Pressures panel.
 
 ![The native Apply Pressures panel in HyperMesh, showing the entity selector](../assets/images/native-hm-selector.png)
 
-The screenshot above is from the native **Apply Pressures** function.
+Clicking the button turns it into a selector with a few small icons (advanced selection, reset, apply, OK, and cancel). After a selection is made, the number of selected entities appears in parentheses.
 
-Unlike basic widgets such as `hwtk::button` and `hwtk::combobox`, 
-the official documentation provides no code examples for this control.
-
-I wanted the same control inside my own HyperMesh Extension dialog. 
-I spent time digging through the Tcl files in the HyperWorks 
-installation directory and found that it is not a single widget, 
-but a combination of several widgets working together. 
-This article describes one way to implement it, based on what I found.
+Unlike basic widgets such as `hwtk::button` and `hwtk::combobox`, this control has no code examples in the official documentation. So I dug through the Tcl files in the HyperWorks installation directory to figure out how to build it into my own extension. This article describes one way to do it, based on what I found.
 
 ---
 
