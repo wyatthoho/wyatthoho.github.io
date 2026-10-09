@@ -37,7 +37,7 @@ The control itself is assembled from these widgets:
 | `hmtk::entityselector` | The selector which owns the selection logic. |
 | `hwctx::guidebar` | The guide bar that visually hosts the selector. |
 | `hwtk::button` | A dummy button that shows the current entity type and count. |
-| `hwtk::buttonbar` | Advanced / Reset / Apply / OK / Cancel |
+| `hwtk::buttonbar` | A floating bar with the Advanced, Reset, OK, and Cancel icons. |
 
 The code below creates these widgets inside a dialog.
 
@@ -133,7 +133,7 @@ $buttonbar add a_reset \
 $buttonbar add a_accept \
     -image "toolbarActionOKStrip-16.png" \
     -indicator hide \
-    -help "Ok" \
+    -help "OK" \
     -command [list ::demo_selector::on_accept $entityselector $buttonbar $button]
 
 $buttonbar add a_cancel \
@@ -143,7 +143,7 @@ $buttonbar add a_cancel \
     -command [list ::demo_selector::on_cancel $entityselector $buttonbar $button]
 ```
 
-Advanced Selection and Reset call methods of the selector directly. The dummy button, Accept, and Cancel call our own procedures below.
+Advanced Selection and Reset call methods of the selector directly. The dummy button, OK, and Cancel call our own procedures below.
 
 ```tcl
 proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselector} {
@@ -160,7 +160,7 @@ proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselec
 }
 ```
 
-The procedure `activate_selector` hides the dummy button itself with `grid forget`, revealing the guide bar underneath. It then floats the button bar at the corner of the cell and raises it on top. Finally, it activates the selector with `SetActive` and saves the current selection to `selected_ids`.
+The procedure `activate_selector` hides the dummy button itself with `grid forget`, revealing the guide bar underneath. It then floats the button bar at the corner of the cell and raises it on top. It also activates the selector with `SetActive` and saves the current selection to `selected_ids`.
 
 ```tcl
 proc ::demo_selector::on_accept {entityselector buttonbar button} {
@@ -206,11 +206,13 @@ proc ::demo_selector::_update_dummy_button {button entitytype {count 0}} {
 
 ## Step 5: Show the Dialog
 
-Finally, the dummy button has not been gridded yet. Initialize it with the helper `::demo_selector::_update_dummy_button`, and then post the dialog.
+Finally, the dummy button has not been gridded yet. So before the dialog first appears, call the helper `::demo_selector::_update_dummy_button` once to put the dummy button on top of the guide bar. The entity type passed in is `Elements`, which matches the `-defaultentity` of the selector. The count is omitted, so it falls back to `0` and the button reads `0 Elements`. Then post the dialog with `$dialog post`.
 
 ```tcl
 ::demo_selector::_update_dummy_button $button "Elements"
 $dialog post
 ```
+
+And here it is! The screenshot below shows what we have built, working just like the native one.
 
 ![The test dialog showing the Entities label and the dummy selector button](../assets/images/entityselector-test.png)
