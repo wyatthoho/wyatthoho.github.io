@@ -112,25 +112,23 @@ The interesting part is that the dummy button and the button bar are not laid ou
 
 ## Step 4: Configure the Dummy Button
 
-The dummy button's label shows the entity type and the count. 
-The helper below grids the button into the cell and updates the label. 
-It is called once at startup (see Step 5), and again after Accept or Cancel.
+Now, let's grid the dummy button. The dummy button appears and disappears many times, and its label shows the number of selected entities. So it is easier to create a helper that grids the button into the cell and updates the label. The helper is called once at startup, and again after Accept or Cancel.
 
 ```tcl
 proc ::demo_selector::_update_dummy_button {button entitytype {count 0}} {
     grid $button -row 0 -column 0 -sticky nsew
     $button configure -text "$count $entitytype"
 }
+
+::demo_selector::_update_dummy_button $button "Elements"
 ```
 
-Clicking the dummy button starts a selection session.
+With the dummy button in place, let's configure what happens when it is clicked. Clicking it starts a selection session.
 
 ```tcl
 $button configure \
-    -command [list ::demo_selector::activate_selector $frame_cell $button $buttonbar $entityselector]
-```
+    -command [list ::demo_selector::activate_selector $frame_cell $button $buttonbar entityselector]
 
-```tcl
 proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselector} {
     variable selected_ids
     set selected_ids [$entityselector ExecSelectionCommand GetSelectionIds]
@@ -145,10 +143,7 @@ proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselec
 }
 ```
 
-1. Save the current selection to `selected_ids`, so that Cancel can restore it later.
-2. Hide the dummy button with `grid forget`, revealing the guide bar underneath.
-3. Float the button bar at the corner of the cell and raise it.
-4. Activate the selector with `SetActive`.
+When the dummy button is clicked, `::demo_selector::activate_selector` hides the button itself with `grid forget`, revealing the guide bar underneath. It then floats the button bar at the corner of the cell and raises it on top. Finally, it activates the selector with `SetActive` and saves the current selection to `selected_ids`.
 
 ---
 
@@ -233,8 +228,6 @@ The rest is identical to Accept, except that the count comes from `selected_ids`
 At the end of `::demo_selector::launch`, initialize the dummy button, then post the dialog:
 
 ```tcl
-::demo_selector::_update_dummy_button $button "Elements"
-
 $dialog post
 ```
 
