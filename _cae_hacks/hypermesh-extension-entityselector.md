@@ -110,50 +110,14 @@ The interesting part is that the dummy button and the button bar are not laid ou
 
 ---
 
-## Step 4: Configure the Dummy Button
+## Step 4: Configure the Dummy Button and Button Bar
 
-Now, let's grid the dummy button. The dummy button appears and disappears many times, and its label shows the number of selected entities. So it is easier to create a helper that grids the button into the cell and updates the label. The helper is called once at startup, and again after Accept or Cancel.
-
-```tcl
-proc ::demo_selector::_update_dummy_button {button entitytype {count 0}} {
-    grid $button -row 0 -column 0 -sticky nsew
-    $button configure -text "$count $entitytype"
-}
-
-::demo_selector::_update_dummy_button $button "Elements"
-```
-
-With the dummy button in place, let's configure what happens when it is clicked. Clicking it starts a selection session.
+Next, configure the commands. Clicking the dummy button starts a selection session. Each small button in the button bar forwards to a method of the selector or to one of our own procedures. The icon names are the ones HyperWorks itself uses, so the result looks identical to the native panels.
 
 ```tcl
 $button configure \
     -command [list ::demo_selector::activate_selector $frame_cell $button $buttonbar $entityselector]
 
-proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselector} {
-    variable selected_ids
-    set selected_ids [$entityselector ExecSelectionCommand GetSelectionIds]
-    set cell_width  [winfo width $frame_cell]
-    set cell_height [winfo height $frame_cell]
-
-    grid forget $button
-    place $buttonbar -in $frame_cell -anchor ne -x $cell_width -y $cell_height
-    raise $buttonbar
-    $entityselector SetActive
-    $entityselector UpdateButtonWidth
-}
-```
-
-When the dummy button is clicked, `::demo_selector::activate_selector` hides the button itself with `grid forget`, revealing the guide bar underneath. It then floats the button bar at the corner of the cell and raises it on top. Finally, it activates the selector with `SetActive` and saves the current selection to `selected_ids`.
-
----
-
-## Step 5: Configure the Button Bar
-
-Each small button in the button bar forwards to a method of the selector. 
-The icon names are the ones HyperWorks itself uses, 
-so the result looks identical to the native panels.
-
-```tcl
 $buttonbar add a_advance \
     -image "toolbarMoreOptionsStrip-16.png" \
     -indicator hide \
@@ -179,13 +143,22 @@ $buttonbar add a_cancel \
     -command [list ::demo_selector::on_cancel $entityselector $buttonbar $button]
 ```
 
-Advanced Selection and Reset need no extra code. 
-Accept and Cancel have to switch the UI back to the dummy button, 
-so they call our own procedures.
-
-### Accept
+Advanced Selection and Reset call methods of the selector directly. The dummy button, Accept, and Cancel call our own procedures below.
 
 ```tcl
+proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselector} {
+    variable selected_ids
+    set selected_ids [$entityselector ExecSelectionCommand GetSelectionIds]
+    set cell_width  [winfo width $frame_cell]
+    set cell_height [winfo height $frame_cell]
+
+    grid forget $button
+    place $buttonbar -in $frame_cell -anchor ne -x $cell_width -y $cell_height
+    raise $buttonbar
+    $entityselector SetActive
+    $entityselector UpdateButtonWidth
+}
+
 proc ::demo_selector::on_accept {entityselector buttonbar button} {
     set ids        [$entityselector ExecSelectionCommand GetSelectionIds]
     set entitytype [$entityselector GetEntityType]
@@ -194,14 +167,7 @@ proc ::demo_selector::on_accept {entityselector buttonbar button} {
     ::demo_selector::_update_dummy_button $button $entitytype [llength $ids]
     raise $button
 }
-```
 
-Read the selection, deactivate the selector, remove the button bar, 
-and bring the dummy button back with the new count as its label.
-
-### Cancel
-
-```tcl
 proc ::demo_selector::on_cancel {entityselector buttonbar button} {
     variable selected_ids
     $entityselector ExecSelectionCommand Clear
@@ -216,18 +182,30 @@ proc ::demo_selector::on_cancel {entityselector buttonbar button} {
 }
 ```
 
-The selector has no built-in "undo" for a selection session. 
-So Cancel clears whatever was picked and re-selects the ids saved at the start, 
-using `SelectByAdvanced "by id"`. 
-The rest is identical to Accept, except that the count comes from `selected_ids`.
+`activate_selector` hides the dummy button itself with `grid forget`, revealing the guide bar underneath. It then floats the button bar at the corner of the cell and raises it on top. Finally, it activates the selector with `SetActive` and saves the current selection to `selected_ids`.
+
+`on_accept` reads the new selection, deactivates the selector, and removes the button bar. The dummy button then comes back with the new count as its label.
+
+`on_cancel` does the same, except that it restores the previous selection first. The selector has no built-in "undo" for a selection session. So Cancel clears whatever was picked and re-selects the ids saved in `selected_ids` with `SelectByAdvanced "by id"`.
+
+Both `on_accept` and `on_cancel` bring back the dummy button with the helper below. It grids the button into the cell and updates its label with the entity type and count. It is also called once at startup (Step 5).
+
+```tcl
+proc ::demo_selector::_update_dummy_button {button entitytype {count 0}} {
+    grid $button -row 0 -column 0 -sticky nsew
+    $button configure -text "$count $entitytype"
+}
+```
 
 ---
 
-## Step 6: Show the Dialog
+## Step 5: Show the Dialog
 
 At the end of `::demo_selector::launch`, initialize the dummy button, then post the dialog:
 
 ```tcl
+::demo_selector::_update_dummy_button $button "Elements"
+
 $dialog post
 ```
 
