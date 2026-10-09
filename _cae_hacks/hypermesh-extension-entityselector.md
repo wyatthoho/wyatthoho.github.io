@@ -92,38 +92,21 @@ In addition, a `hwtk::button` is created. It is a dummy button placed in exactly
 
 ## Step 3: Lay Out the Widgets
 
-The key idea is that the dummy button and the selector occupy the **same grid cell**, 
-with the dummy button stacked on top. 
-Only one of them is visible at a time, 
-depending on whether the user is currently selecting.
-
-The `entityselector` has no appearance of its own, 
-and it is never gridded. 
-It borrows the appearance of the `guidebar` passed in through `-guidebar`, 
-so the guide bar is what actually shows up on screen.
-
 Here is the complete layout code:
 
 ```tcl
 grid $frame_cell -row 0 -column 0 -sticky ew -padx 4 -pady 4
 grid $guidebar   -row 0 -column 0 -sticky ew
 
-grid rowconfigure    $recess 0 -weight 1
 grid columnconfigure $recess 0 -weight 1
 grid columnconfigure $frame_cell 0 -weight 1
 ```
 
-Gridding `frame_cell` into the dialog is ordinary layout. 
-The interesting part is what happens inside `frame_cell`:
+Gridding `frame_cell` into the dialog is ordinary layout. As mentioned earlier, the `entityselector` has no appearance of its own, so it is never gridded. Instead, it is displayed through the `guidebar` passed in with `-guidebar`, and the guide bar is what actually appears on screen.
 
-- `$guidebar` is gridded at row 0, column 0.
-- `$button` is gridded into the same cell by `_update_dummy_button` (see Step 3). 
-  Because it is gridded later, it covers the guide bar. 
-  At rest, the user only sees the dummy button.
-- `$buttonbar` is **not** laid out here at all. 
-  It is placed over the cell only when the user starts selecting (see Step 3).
-- The `-weight 1` setting on `$frame_cell` 
-  lets the guide bar and the dummy button stretch to the full width of the cell.
+Setting `columnconfigure` with `-weight 1` lets the entity selector stretch to the full width of the dialog.
+
+The interesting part is that the dummy button and the button bar are not laid out here. The dummy button is gridded into the same cell later, so it covers the guide bar. At rest, the user only sees the dummy button. When it is clicked, the dummy button disappears to reveal the guide bar underneath, and the button bar appears at the same time.
 
 ---
 
