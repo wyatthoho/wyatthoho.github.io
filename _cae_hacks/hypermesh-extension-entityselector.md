@@ -112,7 +112,7 @@ The interesting part is that the dummy button and the button bar are not laid ou
 
 ## Step 4: Configure the Dummy Button and Button Bar
 
-Next, configure the commands. Clicking the dummy button starts a selection session. Each small button in the button bar forwards to a method of the selector or to one of our own procedures. The icon names are the ones HyperWorks itself uses, so the result looks identical to the native panels.
+Next, configure the commands. Clicking the dummy button starts a selection session. Each small button in the button bar forwards to a method of the selector or to one of our own procedures.
 
 ```tcl
 $button configure \
@@ -158,7 +158,11 @@ proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselec
     $entityselector SetActive
     $entityselector UpdateButtonWidth
 }
+```
 
+The procedure `activate_selector` hides the dummy button itself with `grid forget`, revealing the guide bar underneath. It then floats the button bar at the corner of the cell and raises it on top. Finally, it activates the selector with `SetActive` and saves the current selection to `selected_ids`.
+
+```tcl
 proc ::demo_selector::on_accept {entityselector buttonbar button} {
     set ids        [$entityselector ExecSelectionCommand GetSelectionIds]
     set entitytype [$entityselector GetEntityType]
@@ -168,6 +172,11 @@ proc ::demo_selector::on_accept {entityselector buttonbar button} {
     raise $button
 }
 
+```
+
+The procedure `on_accept` reads the new selection, deactivates the selector, and removes the button bar. The dummy button then comes back with the new count as its label.
+
+```tcl
 proc ::demo_selector::on_cancel {entityselector buttonbar button} {
     variable selected_ids
     $entityselector ExecSelectionCommand Clear
@@ -182,13 +191,9 @@ proc ::demo_selector::on_cancel {entityselector buttonbar button} {
 }
 ```
 
-`activate_selector` hides the dummy button itself with `grid forget`, revealing the guide bar underneath. It then floats the button bar at the corner of the cell and raises it on top. Finally, it activates the selector with `SetActive` and saves the current selection to `selected_ids`.
+The procedure `on_cancel` does the same, except that it restores the previous selection first. The selector has no built-in "undo" for a selection session. So Cancel clears whatever was picked and re-selects the ids saved in `selected_ids` with `SelectByAdvanced "by id"`.
 
-`on_accept` reads the new selection, deactivates the selector, and removes the button bar. The dummy button then comes back with the new count as its label.
-
-`on_cancel` does the same, except that it restores the previous selection first. The selector has no built-in "undo" for a selection session. So Cancel clears whatever was picked and re-selects the ids saved in `selected_ids` with `SelectByAdvanced "by id"`.
-
-Both `on_accept` and `on_cancel` bring back the dummy button with the helper below. It grids the button into the cell and updates its label with the entity type and count. It is also called once at startup (Step 5).
+Both `on_accept` and `on_cancel` bring back the dummy button with the helper below. It grids the button into the cell and updates its label with the entity type and count.
 
 ```tcl
 proc ::demo_selector::_update_dummy_button {button entitytype {count 0}} {
@@ -201,28 +206,11 @@ proc ::demo_selector::_update_dummy_button {button entitytype {count 0}} {
 
 ## Step 5: Show the Dialog
 
-At the end of `::demo_selector::launch`, initialize the dummy button, then post the dialog:
+Finally, the dummy button has not been gridded yet. Initialize it with the helper `::demo_selector::_update_dummy_button`, and then post the dialog.
 
 ```tcl
 ::demo_selector::_update_dummy_button $button "Elements"
-
 $dialog post
 ```
 
 ![The test dialog showing the Entities label and the dummy selector button](../assets/images/entityselector-test.png)
-
----
-
-## Useful Selector Methods
-
-Everything above relies on a handful of methods:
-
-| Method | Purpose |
-| :--- | :--- |
-| `SetActive` / `SetInactive` | Start / stop the selection session. |
-| `ExecSelectionCommand GetSelectionIds` | Get the ids currently selected. |
-| `ExecSelectionCommand Clear` | Clear the selection. |
-| `ExecSelectionCommand SelectByAdvanced "by id" $ids` | Select entities by id. |
-| `GetEntityType` | Current entity type, e.g. `Elements` or `Nodes`. |
-| `OpenAdvancedSelection` | Open the advanced selection dialog. |
-| `UpdateButtonWidth` | Refresh the selector layout after activation. |
