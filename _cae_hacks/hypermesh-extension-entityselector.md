@@ -127,7 +127,7 @@ With the dummy button in place, let's configure what happens when it is clicked.
 
 ```tcl
 $button configure \
-    -command [list ::demo_selector::activate_selector $frame_cell $button $buttonbar entityselector]
+    -command [list ::demo_selector::activate_selector $frame_cell $button $buttonbar $entityselector]
 
 proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselector} {
     variable selected_ids
