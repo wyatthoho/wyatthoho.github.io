@@ -171,7 +171,6 @@ proc ::demo_selector::on_accept {entityselector buttonbar button} {
     ::demo_selector::_update_dummy_button $button $entitytype [llength $ids]
     raise $button
 }
-
 ```
 
 The procedure `on_accept` reads the new selection, deactivates the selector, and removes the button bar. The dummy button then comes back with the new count as its label.
