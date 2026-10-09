@@ -213,6 +213,6 @@ Finally, the dummy button has not been gridded yet. So before the dialog first a
 $dialog post
 ```
 
-And here it is! The screenshot below shows what we have built, working just like the native one.
+And here it is! The animation below shows what we have built, working just like the native one.
 
-![The test dialog showing the Entities label and the dummy selector button](../assets/images/entityselector-test.png)
+![The test dialog showing the Entities label and the dummy selector button](../assets/images/demo-selector.gif){: style="max-width: 480px"}
