@@ -14,7 +14,21 @@ Unlike basic widgets such as `hwtk::button` and `hwtk::combobox`, this control h
 
 ---
 
-## Step 1: Widgets for Entity Selector
+## Step 1: Create a Namespace
+
+First, create a namespace to hold the selection for later use.
+
+```tcl
+namespace eval ::demo_selector {
+    variable selected_ids {}
+}
+```
+
+The variable `selected_ids` keeps a copy of the selected entity ids. These ids can then be used for any further action the user needs.
+
+---
+
+## Step 2: Create the Widgets
 
 The control itself is assembled from these widgets:
 
@@ -25,21 +39,7 @@ The control itself is assembled from these widgets:
 | `hwtk::button` | A dummy button that shows the current entity type and count. |
 | `hwtk::buttonbar` | Advanced / Reset / Apply / OK / Cancel |
 
-Following are the widget creation, layout, and configuration code.
-
----
-
-## Step 2: Create the Widgets
-
-First, create a namespace to hold the selection for future usage
-
-```tcl
-namespace eval ::demo_selector {
-    variable selected_ids {}
-}
-```
-
-Then create the widgets.
+The code below creates these widgets inside a dialog.
 
 ```tcl
 # widgets for dialog and container for entity selector
@@ -80,10 +80,11 @@ A few other options of the `hmtk::entityselector` deserve explanation:
 
 - `-types`: sets the entity types the user can switch between.
 - `-defaultentity`: sets the entity type selected initially.
-- `-isembeddedselector 1`: marks the selector as embedded in a dialog.
-- `-showcount 1`: shows the number of selected entities.
-- `-syncwithbrowser false`: keeps the selector independent of the model browser.
-- `-restorelastentity 0`: does not restore the entity type selected last time.
+- `-selectmode`: sets whether the user can select a `single` entity or `multiple` entities.
+- `-isembeddedselector`: sets whether the selector is embedded in a dialog.
+- `-showcount`: sets whether the number of selected entities is shown.
+- `-syncwithbrowser`: sets whether the selector syncs with the model browser.
+- `-restorelastentity`: sets whether the entity type selected last time is restored.
 
 In addition, a `hwtk::button` is created. It is a dummy button placed in exactly the same position as the `hwctx::guidebar`.
 
