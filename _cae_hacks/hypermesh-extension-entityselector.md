@@ -14,15 +14,7 @@ Unlike basic widgets such as `hwtk::button` and `hwtk::combobox`, this control h
 
 ---
 
-## Step 1: Create the Widgets
-
-First, create a namespace to hold the selection for future usage
-
-```tcl
-namespace eval ::demo_selector {
-    variable selected_ids {}
-}
-```
+## Step 1: Widgets for Entity Selector
 
 The control itself is assembled from these widgets:
 
@@ -33,14 +25,29 @@ The control itself is assembled from these widgets:
 | `hwtk::button` | A dummy button that shows the current entity type and count. |
 | `hwtk::buttonbar` | Advanced / Reset / Apply / OK / Cancel |
 
-The widget creation, configuration, and layout code below all goes into one procedure, 
-`::demo_selector::launch` (see Step 5). 
-The helper and callback procedures are defined separately.
+Following are the widget creation, layout, and configuration code.
+
+---
+
+## Step 2: Create the Widgets
+
+First, create a namespace to hold the selection for future usage
 
 ```tcl
+namespace eval ::demo_selector {
+    variable selected_ids {}
+}
+```
+
+Then create the widgets.
+
+```tcl
+# widgets for dialog and container for entity selector
 set dialog         [hwtk::dialog .dialog -title "Demo Selector"]
 set recess         [$dialog recess]
 set frame_cell     [hwtk::frame $recess.frame_cell]
+
+# widgets for entity selector
 set guidebar       [hwctx::guidebar $frame_cell.guidebar -fillet 2]
 set button         [hwtk::button $frame_cell.button]
 set buttonbar      [hwtk::buttonbar [winfo toplevel $recess].buttonbar -showseparator 0]
@@ -58,31 +65,31 @@ set entityselector [hmtk::entityselector $frame_cell.entityselector \
     -syncwithbrowser    false \
     -restorelastentity  0 \
     -useeventhandler    true \
-    -acceptcommand      [list ::demo_selector::on_accept $frame_cell.entityselector $buttonbar $button] \
-    -cancelcommand      [list ::demo_selector::on_cancel $frame_cell.entityselector $buttonbar $button]
+    -acceptcommand      "" \
+    -cancelcommand      "" \
 ]
 ```
 
-The button bar is created directly on the dialog's toplevel window rather than inside `frame_cell`, 
-so it can later float over the cell with `place` (see Step 3).
+The key widget above is `hmtk::entityselector`, but it cannot stand on its own. It needs a `hwctx::guidebar` as its host, which is passed in through the `-guidebar` option. The `hmtk::entityselector` handles the selection logic, while the `hwctx::guidebar` provides the visible selector. Only the `hwctx::guidebar` needs to be gridded, and the `hmtk::entityselector` logic then works through it.
 
-A few options of the selector deserve explanation:
+Setting `-showreset`, `-showadvanced`, `-showaccept`, and `-showcancel` to `0` hides the built-in icons of the `hmtk::entityselector`. The `-acceptcommand` and `-cancelcommand` options are also left empty. This is because native HyperMesh dialogs don't use the built-in button bar.
 
-- `-guidebar`: ties the selector to the guide bar.
-- `-types` and `-defaultentity`: the entity types the user can switch between, and the one chosen initially.
-- `-isembeddedselector 1`: marks the selector as embedded in a dialog rather than a standalone panel.
-- `-showreset`, `-showadvanced`, `-showaccept`, `-showcancel` all set to `0`: 
-  hides the built-in icons. 
-  I draw these myself with the button bar so they can sit at the corner of the cell.
+Instead, a separate `buttonbar` is created explicitly, as shown in the code. It is created directly on the dialog's toplevel window rather than inside `frame_cell`, so it can later float over the cell with `place`.
+
+A few other options of the `hmtk::entityselector` deserve explanation:
+
+- `-types`: sets the entity types the user can switch between.
+- `-defaultentity`: sets the entity type selected initially.
+- `-isembeddedselector 1`: marks the selector as embedded in a dialog.
 - `-showcount 1`: shows the number of selected entities.
-- `-syncwithbrowser false` and `-restorelastentity 0`: 
-  keep the selector independent of the model browser and of whatever was selected last time.
-- `-acceptcommand` and `-cancelcommand`: the procedures to run on accept and cancel. 
-  They are covered in Step 4.
+- `-syncwithbrowser false`: keeps the selector independent of the model browser.
+- `-restorelastentity 0`: does not restore the entity type selected last time.
+
+In addition, a `hwtk::button` is created. It is a dummy button placed in exactly the same position as the `hwctx::guidebar`.
 
 ---
 
-## Step 2: Lay Out the Widgets
+## Step 3: Lay Out the Widgets
 
 The key idea is that the dummy button and the selector occupy the **same grid cell**, 
 with the dummy button stacked on top. 
@@ -119,7 +126,7 @@ The interesting part is what happens inside `frame_cell`:
 
 ---
 
-## Step 3: Configure the Dummy Button
+## Step 4: Configure the Dummy Button
 
 The dummy button's label shows the entity type and the count. 
 The helper below grids the button into the cell and updates the label. 
@@ -161,7 +168,7 @@ proc ::demo_selector::activate_selector {frame_cell button buttonbar entityselec
 
 ---
 
-## Step 4: Configure the Button Bar
+## Step 5: Configure the Button Bar
 
 Each small button in the button bar forwards to a method of the selector. 
 The icon names are the ones HyperWorks itself uses, 
@@ -237,7 +244,7 @@ The rest is identical to Accept, except that the count comes from `selected_ids`
 
 ---
 
-## Step 5: Show the Dialog
+## Step 6: Show the Dialog
 
 At the end of `::demo_selector::launch`, initialize the dummy button, then post the dialog:
 
@@ -246,25 +253,6 @@ At the end of `::demo_selector::launch`, initialize the dummy button, then post 
 
 $dialog post
 ```
-
-Putting it together, `launch` has this shape:
-
-```tcl
-proc ::demo_selector::launch {} {
-    catch { destroy .dialog }
-
-    # ---- create ----             (Step 1)
-    # ---- configure commands ---- (Steps 3 and 4)
-    # ---- layout ----             (Step 2)
-
-    ::demo_selector::_update_dummy_button $button "Elements"
-
-    $dialog post
-}
-```
-
-Run `::demo_selector::launch`, click the button, pick some elements in the graphics area, 
-and press OK or Cancel.
 
 ![The test dialog showing the Entities label and the dummy selector button](../assets/images/entityselector-test.png)
 
